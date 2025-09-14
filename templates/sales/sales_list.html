@@ -1,0 +1,333 @@
+{% extends "base.html" %}
+{% block title %}Gestión de Ventas - Ferromateriales{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-shopping-cart me-2"></i> Gestión de Ventas</h2>
+        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevaVentaModal" data-url="{% url 'sales:sales_create' %}?modal=1">
+            <i class="fas fa-plus me-1"></i> Nueva Venta
+        </a>
+    </div>
+
+    <!-- Filtros avanzados -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0"><i class="fas fa-filter me-2"></i> Filtros de Búsqueda</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" id="filtroVentas" class="row g-3">
+                <div class="col-md-3">
+                    <label for="filtroFechaInicio" class="form-label">Fecha Inicio</label>
+                    <input type="date" name="start_date" value="{{ filters.start_date }}" class="form-control" id="filtroFechaInicio">
+                </div>
+                <div class="col-md-3">
+                    <label for="filtroFechaFin" class="form-label">Fecha Fin</label>
+                    <input type="date" name="end_date" value="{{ filters.end_date }}" class="form-control" id="filtroFechaFin">
+                </div>
+                <div class="col-md-3">
+                    <label for="filtroCliente" class="form-label">Cliente</label>
+                    <select name="customer" class="form-select" id="filtroCliente">
+                        <option value="all">Todos los clientes</option>
+                        {% for customer in customers %}
+                        <option value="{{ customer.id }}" {% if filters.customer == customer.id|stringformat:"s" %}selected{% endif %}>{{ customer.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="filtroEstado" class="form-label">Estado</label>
+                    <select name="status" class="form-select" id="filtroEstado">
+                        <option value="all">Todos</option>
+                        {% for key, value in statuses %}
+                        <option value="{{ key }}" {% if filters.status == key %}selected{% endif %}>{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100 me-2">
+                        <i class="fas fa-search me-1"></i> Buscar
+                    </button>
+                    <a href="{% url 'sales:sales_list' %}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-undo me-1"></i> Limpiar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tarjetas resumen -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Ventas Totales</h6>
+                            <h2 class="mb-0">{{ page_obj.paginator.count }}</h2>
+                        </div>
+                        <i class="fas fa-shopping-cart fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Monto Total</h6>
+                            <h2 class="mb-0">${{ total_amount|default:0 }}</h2>
+                        </div>
+                        <i class="fas fa-dollar-sign fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Pendientes</h6>
+                            <h2 class="mb-0">{{ pending_count|default:0 }}</h2>
+                        </div>
+                        <i class="fas fa-clock fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Entregadas</h6>
+                            <h2 class="mb-0">{{ delivered_count|default:0 }}</h2>
+                        </div>
+                        <i class="fas fa-check fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Listado de ventas -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Registro de Ventas</h5>
+            <div>
+                <span class="me-3">Total registros: {{ page_obj.paginator.count }}</span>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-file-export me-1"></i> Exportar
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-cog me-1"></i> Configurar
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Número de Orden</th>
+                            <th>Cliente</th>
+                            <th>Fecha</th>
+                            <th>Monto Total</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sale in page_obj %}
+                        <tr>
+                            <td>{{ forloop.counter0|add:page_obj.start_index }}</td>
+                            <td>{{ sale.order_number }}</td>
+                            <td>{{ sale.customer.name }}</td>
+                            <td>{{ sale.date|date:"d/m/Y" }}</td>
+                            <td>${{ sale.total_amount }}</td>
+                            <td>
+                                {% if sale.status == 'pending' %}
+                                <span class="badge bg-warning">Pendiente</span>
+                                {% elif sale.status == 'confirmed' %}
+                                <span class="badge bg-info">Confirmada</span>
+                                {% elif sale.status == 'shipped' %}
+                                <span class="badge bg-primary">Enviada</span>
+                                {% elif sale.status == 'delivered' %}
+                                <span class="badge bg-success">Entregada</span>
+                                {% elif sale.status == 'cancelled' %}
+                                <span class="badge bg-danger">Cancelada</span>
+                                {% else %}
+                                <span class="badge bg-light text-dark">{{ sale.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-outline-secondary" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editarVentaModal" 
+                                            data-url="{% url 'sales:sales_edit' sale.pk %}?modal=1" 
+                                            title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No se encontraron ventas.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginación -->
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if request.GET.start_date %}start_date={{ request.GET.start_date }}&{% endif %}{% if request.GET.end_date %}end_date={{ request.GET.end_date }}&{% endif %}{% if request.GET.customer %}customer={{ request.GET.customer }}&{% endif %}{% if request.GET.status %}status={{ request.GET.status }}&{% endif %}page={{ page_obj.previous_page_number }}" aria-label="Anterior">
+                            <span aria-hidden="true">&laquo; Anterior</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&laquo; Anterior</span>
+                    </li>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?{% if request.GET.start_date %}start_date={{ request.GET.start_date }}&{% endif %}{% if request.GET.end_date %}end_date={{ request.GET.end_date }}&{% endif %}{% if request.GET.customer %}customer={{ request.GET.customer }}&{% endif %}{% if request.GET.status %}status={{ request.GET.status }}&{% endif %}page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if request.GET.start_date %}start_date={{ request.GET.start_date }}&{% endif %}{% if request.GET.end_date %}end_date={{ request.GET.end_date }}&{% endif %}{% if request.GET.customer %}customer={{ request.GET.customer }}&{% endif %}{% if request.GET.status %}status={{ request.GET.status }}&{% endif %}page={{ page_obj.next_page_number }}" aria-label="Siguiente">
+                            <span aria-hidden="true">Siguiente &raquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Siguiente &raquo;</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Editar Venta -->
+<div class="modal fade" id="editarVentaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Venta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div id="editarVentaContenido">
+                    <p>Cargando formulario...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Nueva Venta -->
+<div class="modal fade" id="nuevaVentaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nueva Venta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div id="nuevaVentaContenido">
+                    <p>Cargando formulario...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Script para el modal de edición de venta
+    const editarVentaModal = document.getElementById('editarVentaModal');
+    if (editarVentaModal) {
+        const editarVentaContenido = document.getElementById('editarVentaContenido');
+        editarVentaModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const url = button.getAttribute('data-url');
+            fetch(url)
+                .then(response => response.text())
+                .then(html => {
+                    editarVentaContenido.innerHTML = html;
+                    attachFormSubmitHandler(editarVentaContenido);
+                });
+        });
+        editarVentaModal.addEventListener('hidden.bs.modal', function () {
+            editarVentaContenido.innerHTML = '<p>Cargando formulario...</p>';
+        });
+    }
+
+    // Script para el modal de nueva venta
+    const nuevaVentaModal = document.getElementById('nuevaVentaModal');
+    if (nuevaVentaModal) {
+        const nuevaVentaContenido = document.getElementById('nuevaVentaContenido');
+        nuevaVentaModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const url = button.getAttribute('data-url');
+            fetch(url)
+                .then(response => response.text())
+                .then(html => {
+                    nuevaVentaContenido.innerHTML = html;
+                    attachFormSubmitHandler(nuevaVentaContenido);
+                });
+        });
+        nuevaVentaModal.addEventListener('hidden.bs.modal', function () {
+            nuevaVentaContenido.innerHTML = '<p>Cargando formulario...</p>';
+        });
+    }
+
+    // Función genérica para manejar el envío de formularios en modales
+    function attachFormSubmitHandler(modalContent) {
+        const form = modalContent.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const url = form.action;
+                const formData = new FormData(form);
+
+                fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    }
+                })
+                .then(response => {
+                    if (response.redirected || response.ok) {
+                        window.location.reload();
+                    } else {
+                        return response.text();
+                    }
+                })
+                .then(html => {
+                    if (html) {
+                        modalContent.innerHTML = html;
+                        attachFormSubmitHandler(modalContent);
+                    }
+                })
+                .catch(error => console.error('Error al enviar el formulario:', error));
+            });
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,364 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Product Inventory - Ferrematerials{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0"><i class="fas fa-boxes me-2"></i> Gestión de Inventario</h2>
+        <div>
+            <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                <i class="fas fa-plus me-1"></i> Nuevo Producto
+            </button>
+            <button class="btn btn-outline-secondary">
+                <i class="fas fa-file-export me-1"></i> Exportar
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card inventory-card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">TOTAL PRODUCTOS</h5>
+                    <h2 class="card-text">{{ products.count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card category-card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">CATEGORÍAS</h5>
+                    <h2 class="card-text">{{ categories.count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card low-stock-card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">STOCK BAJO</h5>
+                    <h2 class="card-text">{{ low_stock_count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card out-of-stock-card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">AGOTADOS</h5>
+                    <h2 class="card-text">{{ out_of_stock_count }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="search-container mt-4">
+        <form method="get" action="">
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control" placeholder="Buscar producto..." value="{{ search_query }}">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <select name="category" class="form-select">
+                        <option value="">Todas las categorías</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <select class="form-select">
+                        <option selected>Estado de stock</option>
+                        <option>Disponible</option>
+                        <option>Stock bajo</option>
+                        <option>Agotado</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-list me-2"></i> LISTA DE PRODUCTOS</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Categoría</th>
+                                    <th>Stock</th>
+                                    <th>Precio Unit.</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in products %}
+                                <tr>
+                                    <td>
+                                        {% if product.image %}
+                                        <img src="{{ product.image.url }}" class="rounded-circle me-2" alt="{{ product.name }}" width="40" height="40">
+                                        {% endif %}
+                                        {{ product.name }}
+                                    </td>
+                                    <td>{{ product.category.name }}</td>
+                                    <td>
+                                        <span class="stock-indicator {% if product.current_stock == 0 %}stock-none{% elif product.current_stock < 5 %}stock-low{% else %}stock-ok{% endif %}"></span>
+                                        {{ product.current_stock }}
+                                    </td>
+                                    <td>${{ product.price|floatformat:2 }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#editProductModal-{{ product.pk }}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteProductModal-{{ product.pk }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">No hay productos disponibles.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Product Modal -->
+<div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content shadow-sm">
+            <form method="post" action="{% url 'inventory:product_list' %}" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="addProductModalLabel"><i class="fas fa-plus me-2"></i>Agregar Nuevo Producto</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="{{ add_form.name.id_for_label }}" name="{{ add_form.name.name }}" placeholder="Nombre del Producto" value="{{ add_form.name.value|default:'' }}">
+                                <label for="{{ add_form.name.id_for_label }}">Nombre del Producto</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <select class="form-select" id="{{ add_form.category.id_for_label }}" name="{{ add_form.category.name }}" aria-label="Categoría">
+                                    <option value="">Selecciona una categoría</option>
+                                    {% for category in add_form.category.field.queryset %}
+                                    <option value="{{ category.pk }}" {% if add_form.category.value == category.pk|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <label for="{{ add_form.category.id_for_label }}">Categoría</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <input type="number" step="0.01" class="form-control" id="{{ add_form.price.id_for_label }}" name="{{ add_form.price.name }}" placeholder="Precio" value="{{ add_form.price.value|default:'' }}">
+                                <label for="{{ add_form.price.id_for_label }}">Precio</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <input type="number" class="form-control" id="{{ add_form.current_stock.id_for_label }}" name="{{ add_form.current_stock.name }}" placeholder="Stock Actual" value="{{ add_form.current_stock.value|default:'' }}">
+                                <label for="{{ add_form.current_stock.id_for_label }}">Stock Actual</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-floating mb-3">
+                                <textarea class="form-control" id="{{ add_form.description.id_for_label }}" name="{{ add_form.description.name }}" placeholder="Descripción" style="height: 100px;">{{ add_form.description.value|default:'' }}</textarea>
+                                <label for="{{ add_form.description.id_for_label }}">Descripción</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="{{ add_form.image.id_for_label }}" class="form-label">Imagen del Producto</label>
+                                {{ add_form.image }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <button type="submit" class="btn btn-primary px-4">Agregar Producto</button>
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% for product in products %}
+<!-- Edit Product Modal -->
+<div class="modal fade" id="editProductModal-{{ product.pk }}" tabindex="-1" aria-labelledby="editProductModalLabel-{{ product.pk }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content shadow-sm">
+            <form method="post" action="{% url 'inventory:product_list' %}" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="action" value="edit">
+                <input type="hidden" name="pk" value="{{ product.pk }}">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="editProductModalLabel-{{ product.pk }}"><i class="fas fa-edit me-2"></i>Editar Producto: {{ product.name }}</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="{{ product.edit_form.name.id_for_label }}" name="{{ product.edit_form.name.name }}" placeholder="Nombre del Producto" value="{{ product.edit_form.name.value|default:'' }}">
+                                <label for="{{ product.edit_form.name.id_for_label }}">Nombre del Producto</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <select class="form-select" id="{{ product.edit_form.category.id_for_label }}" name="{{ product.edit_form.category.name }}" aria-label="Categoría">
+                                    <option value="">Selecciona una categoría</option>
+                                    {% for category in product.edit_form.category.field.queryset %}
+                                    <option value="{{ category.pk }}" {% if product.edit_form.category.value == category.pk|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <label for="{{ product.edit_form.category.id_for_label }}">Categoría</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <input type="number" step="0.01" class="form-control" id="{{ product.edit_form.price.id_for_label }}" name="{{ product.edit_form.price.name }}" placeholder="Precio" value="{{ product.edit_form.price.value|default:'' }}">
+                                <label for="{{ product.edit_form.price.id_for_label }}">Precio</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <input type="number" class="form-control" id="{{ product.edit_form.current_stock.id_for_label }}" name="{{ product.edit_form.current_stock.name }}" placeholder="Stock Actual" value="{{ product.edit_form.current_stock.value|default:'' }}">
+                                <label for="{{ product.edit_form.current_stock.id_for_label }}">Stock Actual</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-floating mb-3">
+                                <textarea class="form-control" id="{{ product.edit_form.description.id_for_label }}" name="{{ product.edit_form.description.name }}" placeholder="Descripción" style="height: 100px;">{{ product.edit_form.description.value|default:'' }}</textarea>
+                                <label for="{{ product.edit_form.description.id_for_label }}">Descripción</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="{{ product.edit_form.image.id_for_label }}" class="form-label">Imagen del Producto</label>
+                                {{ product.edit_form.image }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <button type="submit" class="btn btn-primary px-4">Guardar Cambios</button>
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Product Modal -->
+<div class="modal fade" id="deleteProductModal-{{ product.pk }}" tabindex="-1" aria-labelledby="deleteProductModalLabel-{{ product.pk }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'inventory:product_list' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="pk" value="{{ product.pk }}">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteProductModalLabel-{{ product.pk }}">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas eliminar el producto "<strong>{{ product.name }}</strong>"?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% block extra_css %}
+<style>
+.modal-body p {
+    margin-bottom: 1.5rem;
+}
+.modal-body label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+.modal-body input[type="text"], .modal-body input[type="number"], .modal-body input[type="file"], .modal-body select, .modal-body textarea {
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    width: 100%;
+    font-size: 0.9rem;
+    transition: border-color 0.3s ease;
+}
+.modal-body input[type="text"]:focus, .modal-body input[type="number"]:focus, .modal-body input[type="file"]:focus, .modal-body select:focus, .modal-body textarea:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    outline: none;
+}
+.modal-body textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const openModal = "{{ open_modal|escapejs }}";
+    if (openModal) {
+        let modalId = '';
+        if (openModal === 'add') {
+            modalId = '#addProductModal';
+        } else if (openModal.startsWith('edit-')) {
+            modalId = '#editProductModal-' + openModal.split('-')[1];
+        }
+        
+        if (modalId) {
+            const modal = new bootstrap.Modal(document.querySelector(modalId));
+            modal.show();
+        }
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

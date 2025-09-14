@@ -1,0 +1,23 @@
+<form method="post" action="{% if sale %}{% url 'sales:sales_edit' sale.pk %}?modal=1{% else %}{% url 'sales:sales_create' %}?modal=1{% endif %}" novalidate>
+    {% csrf_token %}
+    <div class="row g-3">
+        {% for field in form %}
+            <div class="col-md-6">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ field.errors|striptags }}
+                    </div>
+                {% endif %}
+                {% if field.help_text %}
+                    <div class="form-text">{{ field.help_text }}</div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+    <div class="mt-4 d-flex justify-content-end">
+        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary">{% if sale %}Guardar Cambios{% else %}Crear Venta{% endif %}</button>
+    </div>
+</form>

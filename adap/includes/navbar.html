@@ -1,0 +1,502 @@
+<header class="dashboard-header">
+    <div class="header-container">
+        <!-- Parte izquierda -->
+        <div class="header-left">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a class="brand" href="/">
+                <i class="fas fa-warehouse brand-icon"></i>
+                <span class="brand-name">FERROMATERIALES</span>
+            </a>
+        </div>
+        
+        <!-- Parte derecha -->
+        <div class="header-right">
+            <!-- Notificaciones -->
+            <div class="notification-dropdown dropdown">
+                <button class="notification-btn" type="button" id="notificationsDropdown" data-bs-toggle="dropdown">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="notificationsDropdown">
+                    <li class="dropdown-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Notificaciones</span>
+                            <span class="badge">3 nuevas</span>
+                        </div>
+                    </li>
+                    <li class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <div class="notification-item">
+                                <div class="notification-icon success">
+                                    <i class="fas fa-file-invoice-dollar"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <div class="notification-title">Nueva orden recibida</div>
+                                    <div class="notification-time">Hace 15 minutos</div>
+                                    <div class="notification-desc">Pedido #4582 de Cliente S.A.</div>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <div class="notification-item">
+                                <div class="notification-icon warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <div class="notification-title">Stock bajo en productos</div>
+                                    <div class="notification-time">Hace 2 horas</div>
+                                    <div class="notification-desc">5 productos bajo nivel mínimo</div>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item view-all" href="#">
+                            Ver todas las notificaciones <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Menú de usuario -->
+            <div class="user-dropdown dropdown">
+                <button class="user-btn" type="button" id="userDropdown" data-bs-toggle="dropdown">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <span class="user-name">Operaciones</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                    <li class="user-profile">
+                        <div class="user-avatar large">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name">Usuario Operaciones</div>
+                            <div class="user-role">Administrador</div>
+                        </div>
+                    </li>
+                    <li class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <i class="fas fa-user"></i> Perfil
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <i class="fas fa-cog"></i> Configuración
+                        </a>
+                    </li>
+                    <li class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item logout" href="#">
+                            <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</header>
+
+<style>
+:root {
+    --header-height: 60px;
+    --sidebar-dark: #2a2755;  /* Color principal del sidebar */
+    --sidebar-accent: #3d3780;  /* Color de acento del sidebar */
+    --header-bg: linear-gradient(135deg, #2a2755, #3a3278);  /* Gradiente oscuro que combina con el sidebar */
+    --header-text: rgba(255,255,255,0.92);
+    --header-text-hover: #ffffff;
+    --primary-blue: #3a8cff;
+    --primary-purple: #6a5acd;
+    --primary-pink: #ff4d8d;
+    --secondary-pink: rgba(255, 77, 141, 0.15);
+    --success-color: #2ecc71;
+    --warning-color: #f39c12;
+    --danger-color: #e74c3c;
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Header principal */
+.dashboard-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-height);
+    background: var(--header-bg);
+    box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    border-bottom: 1px solid rgba(0,0,0,0.15);
+}
+
+.header-container {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Parte izquierda */
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-toggle {
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: var(--header-text);
+    font-size: 1.1rem;
+    margin-right: 1rem;
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    transition: var(--transition);
+}
+
+.sidebar-toggle:hover {
+    background: rgba(255,255,255,0.15);
+    color: var(--header-text-hover);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--header-text);
+    font-weight: 600;
+}
+
+.brand-icon {
+    font-size: 1.4rem;
+    color: var(--primary-blue);
+    margin-right: 0.75rem;
+    text-shadow: 0 0 10px rgba(58, 140, 255, 0.3);
+}
+
+.brand-name {
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+}
+
+/* Parte derecha */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Notificaciones */
+.notification-dropdown {
+    position: relative;
+}
+
+.notification-btn {
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: var(--header-text);
+    font-size: 1.1rem;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    position: relative;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.notification-btn:hover {
+    background: rgba(255,255,255,0.15);
+    transform: translateY(-1px);
+}
+
+.notification-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: var(--primary-pink);
+    color: white;
+    font-size: 0.6rem;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.25rem;
+    box-shadow: 0 0 0 2px var(--sidebar-dark);
+}
+
+/* Dropdown de notificaciones */
+.notification-dropdown .dropdown-menu {
+    width: 350px;
+    padding: 0;
+    border: none;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.25);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 10px;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+.dropdown-header {
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, var(--sidebar-dark), var(--sidebar-accent));
+    color: white;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.dropdown-header .badge {
+    background: white;
+    color: var(--sidebar-dark);
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+    font-weight: 600;
+}
+
+.dropdown-divider {
+    margin: 0;
+    border-color: rgba(0,0,0,0.08);
+}
+
+.notification-item {
+    display: flex;
+    padding: 0.75rem 1rem;
+    transition: var(--transition);
+    background: white;
+}
+
+.notification-item:hover {
+    background: #f8f9fa;
+}
+
+.notification-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-size: 1rem;
+}
+
+.notification-icon.success {
+    background: rgba(46, 204, 113, 0.1);
+    color: var(--success-color);
+}
+
+.notification-icon.warning {
+    background: rgba(243, 156, 18, 0.1);
+    color: var(--warning-color);
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.1rem;
+    color: #343a40;
+}
+
+.notification-time {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+}
+
+.notification-desc {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.view-all {
+    text-align: center;
+    color: var(--primary-purple) !important;
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+    background: #f8f9fa;
+    transition: var(--transition);
+}
+
+.view-all:hover {
+    background: #f1f3f5;
+}
+
+.view-all i {
+    margin-left: 0.5rem;
+    font-size: 0.8rem;
+}
+
+/* Menú de usuario */
+.user-dropdown {
+    position: relative;
+}
+
+.user-btn {
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: var(--header-text);
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    border-radius: 30px;
+    transition: var(--transition);
+}
+
+.user-btn:hover {
+    background: rgba(255,255,255,0.15);
+    transform: translateY(-1px);
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(58, 140, 255, 0.15);
+    color: var(--primary-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    margin-right: 0.75rem;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.user-avatar.large {
+    width: 48px;
+    height: 48px;
+    font-size: 1.75rem;
+    margin-right: 0;
+    border: 2px solid rgba(255,255,255,0.15);
+}
+
+.user-name {
+    font-weight: 500;
+    font-size: 0.9rem;
+    margin-right: 0.5rem;
+}
+
+.user-btn i:last-child {
+    font-size: 0.7rem;
+    opacity: 0.8;
+}
+
+/* Dropdown de usuario */
+.user-dropdown .dropdown-menu {
+    width: 280px;
+    padding: 0;
+    border: none;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.25);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 10px;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, var(--sidebar-dark), var(--sidebar-accent));
+    color: white;
+}
+
+.user-info {
+    margin-left: 1rem;
+}
+
+.user-info .user-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 0.1rem;
+}
+
+.user-info .user-role {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.7);
+}
+
+.dropdown-item {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    transition: var(--transition);
+    background: white;
+}
+
+.dropdown-item i {
+    width: 24px;
+    font-size: 0.9rem;
+    color: var(--primary-blue);
+    margin-right: 0.75rem;
+}
+
+.dropdown-item:hover {
+    background: #f8f9fa;
+    color: var(--primary-purple);
+}
+
+.dropdown-item.logout {
+    color: var(--danger-color);
+    background: white;
+}
+
+.dropdown-item.logout:hover {
+    background: #f8f9fa;
+}
+
+.dropdown-item.logout i {
+    color: var(--danger-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .brand-name {
+        display: none;
+    }
+    
+    .user-name {
+        display: none;
+    }
+    
+    .user-btn i:last-child {
+        display: none;
+    }
+    
+    .dashboard-header {
+        padding: 0 1rem;
+    }
+    
+    .notification-btn, .user-btn {
+        padding: 0.5rem;
+    }
+    
+    .user-avatar {
+        margin-right: 0;
+    }
+}
+</style>

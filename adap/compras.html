@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{% block title %}Gestión de Compras - Ferromateriales{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-shopping-cart me-2"></i> Gestión de Compras</h2>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevaCompraModal">
+            <i class="fas fa-plus me-1"></i> Nueva Compra
+        </button>
+    </div>
+
+    <!-- Filtros específicos para compras -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label for="compraFechaInicio" class="form-label">Fecha Inicio</label>
+                        <input type="date" class="form-control" id="compraFechaInicio">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="compraFechaFin" class="form-label">Fecha Fin</label>
+                        <input type="date" class="form-control" id="compraFechaFin">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="proveedor" class="form-label">Proveedor</label>
+                        <select class="form-select" id="proveedor">
+                            <option value="">Todos los proveedores</option>
+                            <option value="1">Aceros del Norte</option>
+                            <option value="2">Hierros Industriales SAC</option>
+                            <option value="3">Materiales de Construcción ABC</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="estadoCompra" class="form-label">Estado</label>
+                        <select class="form-select" id="estadoCompra">
+                            <option value="">Todos</option>
+                            <option value="pendiente">Pendiente</option>
+                            <option value="recibida">Recibida</option>
+                            <option value="cancelada">Cancelada</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="fas fa-filter me-1"></i> Filtrar
+                        </button>
+                        <button type="reset" class="btn btn-outline-secondary">
+                            <i class="fas fa-undo me-1"></i> Limpiar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Listado de compras -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Registro de Compras</h5>
+            <div>
+                <span class="me-3">Total registros: 87</span>
+                <button class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-file-export me-1"></i> Exportar
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Orden Compra</th>
+                            <th>Fecha</th>
+                            <th>Proveedor</th>
+                            <th>Materiales</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>OC-2023-00458</td>
+                            <td>10/11/2023</td>
+                            <td>Aceros del Norte</td>
+                            <td>5 materiales</td>
+                            <td>$3,780.50</td>
+                            <td><span class="badge bg-success">Recibida</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" title="Ver detalle">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <!-- Más filas de compras... -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Paginación -->
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Anterior</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Siguiente</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para nueva compra -->
+<div class="modal fade" id="nuevaCompraModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Registrar Nueva Compra</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Formulario de nueva compra -->
+                <form>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="proveedorSelect" class="form-label">Proveedor</label>
+                            <select class="form-select" id="proveedorSelect" required>
+                                <option value="">Seleccionar proveedor...</option>
+                                <option value="1">Aceros del Norte</option>
+                                <option value="2">Hierros Industriales SAC</option>
+                                <option value="3">Materiales de Construcción ABC</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="fechaCompra" class="form-label">Fecha</label>
+                            <input type="date" class="form-control" id="fechaCompra" required>
+                        </div>
+                        
+                        <!-- Materiales -->
+                        <div class="col-12 mt-4">
+                            <h6>Materiales</h6>
+                            <div class="table-responsive">
+                                <table class="table" id="materialesTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Material</th>
+                                            <th>Cantidad</th>
+                                            <th>Unidad</th>
+                                            <th>Precio Unit.</th>
+                                            <th>Subtotal</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Filas de materiales dinámicas -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="agregarMaterial">
+                                <i class="fas fa-plus me-1"></i> Agregar Material
+                            </button>
+                        </div>
+                        
+                        <!-- Totales -->
+                        <div class="col-md-6 offset-md-6 mt-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <span>$0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>IGV (18%):</span>
+                                <span>$0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between fw-bold">
+                                <span>Total:</span>
+                                <span>$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary">Guardar Compra</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Scripts específicos para la gestión de compras
+document.addEventListener('DOMContentLoaded', function() {
+    // Lógica para agregar materiales dinámicamente
+    document.getElementById('agregarMaterial').addEventListener('click', function() {
+        // Implementar lógica para agregar filas de materiales
+    });
+    
+    // Otras funcionalidades específicas de compras
+});
+</script>
+{% endblock %}

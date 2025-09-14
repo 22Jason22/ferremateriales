@@ -1,0 +1,713 @@
+{% extends "base.html" %}
+{% block title %}Dashboard de Ventas - Ferromateriales{% endblock %}
+
+{% block css %}
+<style>
+    :root {
+        --sidebar-width: 250px;
+        --transition-speed: 0.3s;
+        --primary-color: #2c3e50;
+        --secondary-color: #3498db;
+        --accent-color: #e74c3c;
+        --light-color: #ecf0f1;
+        --dark-color: #2c3e50;
+        --success-color: #2ecc71;
+        --warning-color: #f39c12;
+        --info-color: #3498db;
+    }
+    
+    body {
+        background-color: #f5f7fa;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #333;
+        padding-top: 56px;
+        padding-left: var(--sidebar-width);
+        transition: padding-left var(--transition-speed);
+    }
+    
+    @media (max-width: 992px) {
+        body {
+            padding-left: 0;
+        }
+    }
+    
+    .main-content {
+        min-height: calc(100vh - 56px);
+        padding: 20px;
+        transition: margin-left var(--transition-speed);
+    }
+    
+    /* Sidebar styles */
+    .sidebar {
+        width: var(--sidebar-width);
+        min-height: calc(100vh - 56px);
+        position: fixed;
+        top: 56px;
+        left: 0;
+        z-index: 100;
+        background: linear-gradient(to bottom, var(--dark-color), var(--primary-color));
+        box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+        transition: transform var(--transition-speed);
+        overflow-y: auto;
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    
+    @media (max-width: 992px) {
+        .sidebar {
+            transform: translateX(-100%);
+        }
+    }
+    
+    .sidebar-inner {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    
+    .sidebar-header {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        text-align: center;
+    }
+    
+    .nav-link {
+        color: rgba(255, 255, 255, 0.8);
+        margin: 0.1rem 1rem;
+        border-radius: 5px;
+        transition: all 0.2s;
+    }
+    
+    .nav-link:hover {
+        color: white;
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .nav-link.active {
+        background-color: var(--secondary-color);
+        color: white;
+        font-weight: 500;
+    }
+    
+    .nav-link i {
+        width: 20px;
+        text-align: center;
+    }
+    
+    /* Navbar styles */
+    .dashboard-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+        z-index: 1030;
+    }
+    
+    /* Card styles */
+    .card {
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border: none;
+        margin-bottom: 20px;
+        transition: transform 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .card-header {
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: 10px 10px 0 0 !important;
+        padding: 12px 20px;
+        font-weight: 600;
+    }
+    
+    .inventory-card {
+        background: linear-gradient(135deg, #3498db, #2c3e50);
+        color: white;
+    }
+    
+    .low-stock-card {
+        background: linear-gradient(135deg, #f39c12, #d35400);
+        color: white;
+    }
+    
+    .out-of-stock-card {
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        color: white;
+    }
+    
+    .category-card {
+        background: linear-gradient(135deg, #2ecc71, #27ae60);
+        color: white;
+    }
+    
+    .chart-container {
+        height: 250px;
+        position: relative;
+    }
+    
+    .progress {
+        height: 10px;
+        border-radius: 5px;
+        margin-top: 8px;
+    }
+    
+    .table-responsive {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .table thead {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .badge-custom {
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-weight: normal;
+    }
+    
+    .search-container {
+        background-color: white;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stock-indicator {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 5px;
+    }
+    
+    .stock-ok {
+        background-color: var(--success-color);
+    }
+    
+    .stock-low {
+        background-color: var(--warning-color);
+    }
+    
+    .stock-none {
+        background-color: var(--accent-color);
+    }
+    
+    .pagination-container {
+        background-color: white;
+        padding: 10px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Navbar -->
+<header class="dashboard-header navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center w-100">
+            <div class="d-flex align-items-center">
+                <button class="btn btn-sm btn-outline-light me-3 d-lg-none" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <a class="navbar-brand d-flex align-items-center" href="/">
+                    <i class="fas fa-warehouse me-2"></i>
+                    <span class="d-none d-md-inline">Ferromateriales</span>
+                </a>
+            </div>
+            
+            <div class="d-flex align-items-center">
+                <!-- Notificaciones -->
+                <div class="dropdown me-3">
+                    <button class="btn btn-sm btn-outline-light dropdown-toggle position-relative" type="button" id="notificationsDropdown" data-bs-toggle="dropdown">
+                        <i class="fas fa-bell"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            3 <span class="visually-hidden">notificaciones</span>
+                        </span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-lg-end shadow" aria-labelledby="notificationsDropdown">
+                        <li><h6 class="dropdown-header text-center">Notificaciones</h6></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                <div class="me-3 text-success">
+                                    <i class="fas fa-file-invoice-dollar fa-lg"></i>
+                                </div>
+                                <div>
+                                    <div class="small">Nueva orden recibida</div>
+                                    <small class="text-muted">Hace 15 minutos</small>
+                                </div>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                <div class="me-3 text-warning">
+                                    <i class="fas fa-exclamation-triangle fa-lg"></i>
+                                </div>
+                                <div>
+                                    <div class="small">Stock bajo en productos</div>
+                                    <small class="text-muted">Hace 2 horas</small>
+                                </div>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-center text-primary" href="#">
+                                Ver todas las notificaciones
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Usuario -->
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-light dropdown-toggle d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown">
+                        <div class="me-2">
+                            <i class="fas fa-user-circle fa-lg"></i>
+                        </div>
+                        <span class="d-none d-md-inline">Usuario Operaciones</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                        <li>
+                            <div class="dropdown-header text-center">
+                                <div class="mb-2">
+                                    <i class="fas fa-user-circle fa-2x"></i>
+                                </div>
+                                <div>Usuario Operaciones</div>
+                                <small class="text-muted">Rol: Administrador</small>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <i class="fas fa-user me-2"></i> Perfil
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <i class="fas fa-cog me-2"></i> Configuración
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="#">
+                                <i class="fas fa-sign-out-alt me-2"></i> Cerrar sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Contenido principal -->
+<main class="main-content">
+    <div class="container-fluid">
+        <!-- Título y botones -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0"><i class="fas fa-boxes me-2"></i> Gestión de Inventario</h2>
+            <div>
+                <button class="btn btn-primary me-2">
+                    <i class="fas fa-plus me-1"></i> Nuevo Producto
+                </button>
+                <button class="btn btn-outline-secondary">
+                    <i class="fas fa-file-export me-1"></i> Exportar
+                </button>
+            </div>
+        </div>
+        
+        <!-- Resumen de inventario -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card inventory-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">TOTAL PRODUCTOS</h5>
+                        <h2 class="card-text">1,248</h2>
+                        <p class="mb-0"><i class="fas fa-arrow-up me-1"></i> 5.2% vs mes anterior</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card category-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">CATEGORÍAS</h5>
+                        <h2 class="card-text">24</h2>
+                        <p class="mb-0"><i class="fas fa-tags me-1"></i> 3 nuevas este mes</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card low-stock-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">STOCK BAJO</h5>
+                        <h2 class="card-text">47</h2>
+                        <p class="mb-0"><i class="fas fa-exclamation-triangle me-1"></i> 12% del total</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card out-of-stock-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">AGOTADOS</h5>
+                        <h2 class="card-text">12</h2>
+                        <p class="mb-0"><i class="fas fa-times-circle me-1"></i> 1% del total</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filtros y búsqueda -->
+        <div class="search-container mt-4">
+            <div class="row">
+                <div class="col-md-3 mb-2">
+                    <select class="form-select">
+                        <option selected>Todas las categorías</option>
+                        <option>Varillas de acero</option>
+                        <option>Perfiles metálicos</option>
+                        <option>Herramientas manuales</option>
+                        <option>Materiales eléctricos</option>
+                        <option>Tuberías y conexiones</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <select class="form-select">
+                        <option selected>Todos los proveedores</option>
+                        <option>Aceros del Sur</option>
+                        <option>Metales Industriales</option>
+                        <option>Ferretería Nacional</option>
+                        <option>Distribuidora Eléctrica</option>
+                        <option>Importadora de Herramientas</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <select class="form-select">
+                        <option selected>Estado de stock</option>
+                        <option>Disponible</option>
+                        <option>Stock bajo</option>
+                        <option>Agotado</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Buscar producto...">
+                        <button class="btn btn-primary" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Gráficos y tabla -->
+        <div class="row mt-4">
+            <!-- Distribución por categoría -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-chart-pie me-2"></i> DISTRIBUCIÓN POR CATEGORÍA
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="categoryDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Movimiento de inventario -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-chart-line me-2"></i> MOVIMIENTO DE INVENTARIO (ÚLTIMOS 6 MESES)
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="inventoryMovementChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tabla de productos -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-list me-2"></i> LISTA DE PRODUCTOS</span>
+                        <div>
+                            <span class="badge bg-primary badge-custom me-2">1-10 de 1,248</span>
+                            <button class="btn btn-sm btn-outline-secondary me-2">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Producto</th>
+                                        <th>Categoría</th>
+                                        <th>Proveedor</th>
+                                        <th>Stock</th>
+                                        <th>Precio Unit.</th>
+                                        <th>Valor Total</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>AC-4578</td>
+                                        <td>Varilla de Acero 1/2" x 6m</td>
+                                        <td>Varillas de acero</td>
+                                        <td>Aceros del Sur</td>
+                                        <td>
+                                            <span class="stock-indicator stock-ok"></span>
+                                            1,250
+                                        </td>
+                                        <td>$12.50</td>
+                                        <td>$15,625.00</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary me-1">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>PE-3256</td>
+                                        <td>Perfil C 2" x 6m</td>
+                                        <td>Perfiles metálicos</td>
+                                        <td>Metales Industriales</td>
+                                        <td>
+                                            <span class="stock-indicator stock-low"></span>
+                                            45
+                                        </td>
+                                        <td>$28.75</td>
+                                        <td>$1,293.75</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary me-1">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>HE-7890</td>
+                                        <td>Martillo de Acero 16oz</td>
+                                        <td>Herramientas manuales</td>
+                                        <td>Ferretería Nacional</td>
+                                        <td>
+                                            <span class="stock-indicator stock-none"></span>
+                                            0
+                                        </td>
+                                        <td>$8.99</td>
+                                        <td>$0.00</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary me-1">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>EL-4521</td>
+                                        <td>Cable THHN #12 100m</td>
+                                        <td>Materiales eléctricos</td>
+                                        <td>Distribuidora Eléctrica</td>
+                                        <td>
+                                            <span class="stock-indicator stock-ok"></span>
+                                            320
+                                        </td>
+                                        <td>$45.80</td>
+                                        <td>$14,656.00</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary me-1">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>TU-6587</td>
+                                        <td>Tubería PVC 1" x 3m</td>
+                                        <td>Tuberías y conexiones</td>
+                                        <td>Importadora de Herramientas</td>
+                                        <td>
+                                            <span class="stock-indicator stock-low"></span>
+                                            23
+                                        </td>
+                                        <td>$6.25</td>
+                                        <td>$143.75</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary me-1">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pie de página -->
+        <div class="footer mt-4">
+            <div class="pagination-container">
+                <div>
+                    <span>Hoja 1 de 125</span>
+                </div>
+                <div>
+                    <span class="me-3">Ferromateriales_Inventario</span>
+                    <span class="me-3">Español (Venezuela)</span>
+                    <span class="me-3">Usuario: Operaciones</span>
+                    <span>100%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+    // Esperar a que el DOM esté completamente cargado
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle sidebar en móviles
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function() {
+                const sidebar = document.getElementById('sidebar');
+                if (sidebar) {
+                    sidebar.classList.toggle('show');
+                }
+            });
+        }
+        
+        // Función para crear gráficas con manejo de errores
+        function createCharts() {
+            try {
+                // Gráfico de distribución por categoría
+                const categoryCanvas = document.getElementById('categoryDistributionChart');
+                if (categoryCanvas) {
+                    const categoryCtx = categoryCanvas.getContext('2d');
+                    new Chart(categoryCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Varillas de acero', 'Perfiles metálicos', 'Herramientas manuales', 'Materiales eléctricos', 'Tuberías y conexiones', 'Otros'],
+                            datasets: [{
+                                data: [28, 22, 18, 15, 12, 5],
+                                backgroundColor: [
+                                    'rgba(52, 152, 219, 0.7)',
+                                    'rgba(46, 204, 113, 0.7)',
+                                    'rgba(241, 196, 15, 0.7)',
+                                    'rgba(155, 89, 182, 0.7)',
+                                    'rgba(231, 76, 60, 0.7)',
+                                    'rgba(149, 165, 166, 0.7)'
+                                ],
+                                borderColor: [
+                                    'rgba(52, 152, 219, 1)',
+                                    'rgba(46, 204, 113, 1)',
+                                    'rgba(241, 196, 15, 1)',
+                                    'rgba(155, 89, 182, 1)',
+                                    'rgba(231, 76, 60, 1)',
+                                    'rgba(149, 165, 166, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'right',
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Gráfico de movimiento de inventario
+                const movementCanvas = document.getElementById('inventoryMovementChart');
+                if (movementCanvas) {
+                    const movementCtx = movementCanvas.getContext('2d');
+                    new Chart(movementCtx, {
+                        type: 'line',
+                        data: {
+                            labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'],
+                            datasets: [
+                                {
+                                    label: 'Entradas',
+                                    data: [1200, 1450, 980, 1820, 1950, 2100],
+                                    borderColor: 'rgba(46, 204, 113, 1)',
+                                    backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                                    tension: 0.3,
+                                    fill: true
+                                },
+                                {
+                                    label: 'Salidas',
+                                    data: [980, 1200, 850, 1500, 1750, 1900],
+                                    borderColor: 'rgba(231, 76, 60, 1)',
+                                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                                    tension: 0.3,
+                                    fill: true
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error al crear gráficas:', error);
+            }
+        }
+
+        // Llamar a la función para crear gráficas
+        createCharts();
+    });
+</script>
+{% endblock %}

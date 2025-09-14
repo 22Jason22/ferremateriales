@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Editar Producto - Ferremateriales{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0"><i class="fas fa-edit me-2"></i> Editar Producto: {{ form.instance.name }}</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="{{ form.name.id_for_label }}" name="{{ form.name.name }}" placeholder="Nombre del Producto" value="{{ form.name.value|default:'' }}">
+                                    <label for="{{ form.name.id_for_label }}">Nombre del Producto</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <select class="form-select" id="{{ form.category.id_for_label }}" name="{{ form.category.name }}" aria-label="Categoría">
+                                        <option value="">Selecciona una categoría</option>
+                                        {% for category in form.category.field.queryset %}
+                                        <option value="{{ category.pk }}" {% if form.category.value == category.pk|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <label for="{{ form.category.id_for_label }}">Categoría</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="number" step="0.01" class="form-control" id="{{ form.price.id_for_label }}" name="{{ form.price.name }}" placeholder="Precio" value="{{ form.price.value|default:'' }}">
+                                    <label for="{{ form.price.id_for_label }}">Precio</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="number" class="form-control" id="{{ form.current_stock.id_for_label }}" name="{{ form.current_stock.name }}" placeholder="Stock Actual" value="{{ form.current_stock.value|default:'' }}">
+                                    <label for="{{ form.current_stock.id_for_label }}">Stock Actual</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-floating mb-3">
+                                    <textarea class="form-control" id="{{ form.description.id_for_label }}" name="{{ form.description.name }}" placeholder="Descripción" style="height: 100px;">{{ form.description.value|default:'' }}</textarea>
+                                    <label for="{{ form.description.id_for_label }}">Descripción</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="{{ form.image.id_for_label }}" class="form-label">Imagen del Producto</label>
+                                    {{ form.image }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3 d-flex justify-content-between">
+                            <button type="submit" class="btn btn-primary px-4">Guardar Cambios</button>
+                            <a href="{% url 'inventory:product_list' %}" class="btn btn-secondary px-4">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

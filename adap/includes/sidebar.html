@@ -1,0 +1,265 @@
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-inner">
+        <!-- Logo y nombre de la empresa -->
+        <div class="sidebar-header">
+            <div class="logo-container">
+                <i class="fas fa-warehouse"></i>
+            </div>
+            <h5>Ferromateriales</h5>
+            <small>Sistema de Gestión</small>
+        </div>
+        
+        <!-- Menú de navegación -->
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="/">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/catalogo/">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Catálogo</span>
+                    <span class="badge new">Nuevo</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/ventas/">
+                    <i class="fas fa-cash-register"></i>
+                    <span>Ventas</span>
+                    <span class="badge">15</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/compras/">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Compras</span>
+                    <span class="badge">8</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/inventario/">
+                    <i class="fas fa-boxes"></i>
+                    <span>Inventario</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/proveedores/">
+                    <i class="fas fa-truck"></i>
+                    <span>Proveedores</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/clientes/">
+                    <i class="fas fa-users"></i>
+                    <span>Clientes</span>
+                </a>
+            </li>
+            
+            <!-- Separador -->
+            <li class="nav-divider">
+                <span>Reportes</span>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Estadísticas</span>
+                </a>
+            </li>
+        </ul>
+        
+        <!-- Footer del sidebar -->
+        <div class="sidebar-footer">
+            <small>Versión 2.1.0</small>
+        </div>
+    </div>
+</aside>
+
+<style>
+:root {
+    --sidebar-width: 250px;
+    --header-height: 60px;
+    --sidebar-bg: #2a2755;
+    --sidebar-accent: #3d3780;
+    --sidebar-text: rgba(255,255,255,0.85);
+    --sidebar-text-active: #ffffff;
+    --primary-blue: #3a8cff;
+    --primary-purple: #6a5acd;
+    --primary-pink: #ff4d8d;
+    --secondary-pink: rgba(255, 77, 141, 0.15);
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.sidebar {
+    width: var(--sidebar-width);
+    height: calc(100vh - var(--header-height));
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+    background: var(--sidebar-bg);
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+    z-index: 99;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.sidebar-inner {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 1rem 0;
+}
+
+/* Header */
+.sidebar-header {
+    text-align: center;
+    padding: 0 1.25rem 1rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.logo-container {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(58, 140, 255, 0.1);
+    border-radius: 12px;
+    color: var(--primary-blue);
+    font-size: 1.5rem;
+}
+
+.sidebar-header h5 {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    font-size: 1rem;
+}
+
+.sidebar-header small {
+    color: rgba(255,255,255,0.5);
+    font-size: 0.7rem;
+}
+
+/* Navigation */
+.nav {
+    flex: 1;
+    padding: 0 0.75rem;
+    overflow-y: auto;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.65rem 0.75rem;
+    margin-bottom: 0.2rem;
+    color: var(--sidebar-text);
+    border-radius: 6px;
+    transition: var(--transition);
+    position: relative;
+    font-size: 0.9rem;
+}
+
+.nav-link:hover {
+    background: rgba(255,255,255,0.05);
+    color: var(--sidebar-text-active);
+}
+
+.nav-link.active {
+    background: var(--secondary-pink);
+    color: var(--sidebar-text-active);
+    font-weight: 500;
+}
+
+.nav-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--primary-pink);
+    border-radius: 0 3px 3px 0;
+}
+
+.nav-link i {
+    width: 20px;
+    text-align: center;
+    margin-right: 10px;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.nav-link.active i {
+    opacity: 1;
+}
+
+/* Badges */
+.badge {
+    font-size: 0.6rem;
+    font-weight: 600;
+    padding: 0.2em 0.4em;
+    border-radius: 8px;
+    margin-left: auto;
+    background: var(--primary-pink);
+    color: white;
+}
+
+.badge.new {
+    background: rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.9);
+}
+
+/* Divider */
+.nav-divider {
+    padding: 0.75rem 0.75rem 0.25rem;
+    margin-top: 0.5rem;
+}
+
+.nav-divider span {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: rgba(255,255,255,0.4);
+    font-weight: 500;
+}
+
+/* Footer */
+.sidebar-footer {
+    padding: 0.75rem 1.25rem 0;
+    margin-top: auto;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    text-align: center;
+}
+
+.sidebar-footer small {
+    color: rgba(255,255,255,0.4);
+    font-size: 0.65rem;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .sidebar {
+        transform: translateX(-100%);
+        top: 0;
+        height: 100vh;
+        z-index: 1000;
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+}
+</style>

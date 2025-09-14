@@ -1,0 +1,451 @@
+{% extends "base.html" %}
+{% block title %}Gestión de Clientes - Ferromateriales{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-users me-2"></i> Gestión de Clientes</h2>
+	        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevoClienteModal">
+	            <i class="fas fa-plus me-1"></i> Nuevo Cliente
+	        </a>
+    </div>
+
+    <!-- Filtros avanzados -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0"><i class="fas fa-filter me-2"></i> Filtros de Búsqueda</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" id="filtroClientes" class="row g-3">
+                <div class="col-md-4">
+                    <label for="filtroNombre" class="form-label">Nombre/Razón Social</label>
+                    <input type="text" name="nombre" value="{{ request.GET.nombre }}" class="form-control" id="filtroNombre" placeholder="Buscar cliente...">
+                </div>
+                <div class="col-md-3">
+                    <label for="filtroTipo" class="form-label">Tipo de Cliente</label>
+                    <select name="tipo" class="form-select" id="filtroTipo">
+                        <option value="">Todos los tipos</option>
+                        {% for key, value in client_types %}
+                        <option value="{{ key }}" {% if request.GET.tipo == key %}selected{% endif %}>{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="filtroEstado" class="form-label">Estado</label>
+                    <select name="estado" class="form-select" id="filtroEstado">
+                        <option value="">Todos</option>
+                        {% for key, value in statuses %}
+                        <option value="{{ key }}" {% if request.GET.estado == key %}selected{% endif %}>{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100 me-2">
+                        <i class="fas fa-search me-1"></i> Buscar
+                    </button>
+                    <a href="{% url 'crm:clientes' %}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-undo me-1"></i> Limpiar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tarjetas resumen -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Clientes Activos</h6>
+                            <h2 class="mb-0">{{ stats.clientes_activos }}</h2>
+                        </div>
+                        <i class="fas fa-user-check fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Ventas este mes</h6>
+                            <h2 class="mb-0">{{ stats.ventas_mes }}</h2>
+                        </div>
+                        <i class="fas fa-shopping-cart fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Clientes Morosos</h6>
+                            <h2 class="mb-0">{{ stats.clientes_morosos }}</h2>
+                        </div>
+                        <i class="fas fa-exclamation-triangle fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Nuevos este mes</h6>
+                            <h2 class="mb-0">{{ stats.nuevos_mes }}</h2>
+                        </div>
+                        <i class="fas fa-user-plus fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Listado de clientes -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Registro de Clientes</h5>
+            <div>
+                <span class="me-3">Total registros: {{ page_obj.paginator.count }}</span>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-file-export me-1"></i> Exportar
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-cog me-1"></i> Configurar
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Cliente</th>
+                            <th>Contacto</th>
+                            <th>Tipo</th>
+                            <th>Última Compra</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cliente in page_obj %}
+                        <tr>
+                            <td>{{ forloop.counter0|add:page_obj.start_index }}</td>
+                            <td>
+                                <strong>{{ cliente.name }}</strong><br>
+                                <small class="text-muted">RUC: {{ cliente.tax_id }}</small>
+                            </td>
+                            <td>
+                                <div>{{ cliente.contact_name }}</div>
+                                <div class="small text-muted">{{ cliente.email }}</div>
+                                <div class="small text-muted">{{ cliente.phone }}</div>
+                            </td>
+                            <td>{{ cliente.get_client_type_display }}</td>
+                            <td>
+                                {% if cliente.last_purchase %}
+                                <div>{{ cliente.last_purchase|date:"d/m/Y" }}</div>
+                                {% else %}
+                                <div>-</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if cliente.status == 'active' %}
+                                <span class="badge bg-success">Activo</span>
+                                {% elif cliente.status == 'inactive' %}
+                                <span class="badge bg-secondary">Inactivo</span>
+                                {% elif cliente.status == 'delinquent' %}
+                                <span class="badge bg-warning">Moroso</span>
+                                {% elif cliente.status == 'new' %}
+                                <span class="badge bg-info">Nuevo</span>
+                                {% else %}
+                                <span class="badge bg-light text-dark">{{ cliente.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-outline-primary btn-view-detail" data-bs-toggle="modal" data-bs-target="#clienteDetailModal" data-url="{% url 'crm:ver_cliente' cliente.id %}?modal=1" title="Ver detalle">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-edit-client" data-bs-toggle="modal" data-bs-target="#editarClienteModal" data-url="{% url 'crm:editar_cliente' cliente.id %}?modal=1" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <a href="{% url 'crm:historial_cliente' cliente.id %}" class="btn btn-outline-info" title="Historial">
+                                        <i class="fas fa-history"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No se encontraron clientes.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginación -->
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if request.GET.nombre %}nombre={{ request.GET.nombre }}&{% endif %}{% if request.GET.tipo %}tipo={{ request.GET.tipo }}&{% endif %}{% if request.GET.estado %}estado={{ request.GET.estado }}&{% endif %}page={{ page_obj.previous_page_number }}" aria-label="Anterior">
+                            <span aria-hidden="true">&laquo; Anterior</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&laquo; Anterior</span>
+                    </li>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?{% if request.GET.nombre %}nombre={{ request.GET.nombre }}&{% endif %}{% if request.GET.tipo %}tipo={{ request.GET.tipo }}&{% endif %}{% if request.GET.estado %}estado={{ request.GET.estado }}&{% endif %}page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if request.GET.nombre %}nombre={{ request.GET.nombre }}&{% endif %}{% if request.GET.tipo %}tipo={{ request.GET.tipo }}&{% endif %}{% if request.GET.estado %}estado={{ request.GET.estado }}&{% endif %}page={{ page_obj.next_page_number }}" aria-label="Siguiente">
+                            <span aria-hidden="true">Siguiente &raquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Siguiente &raquo;</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+    <!-- Modal para detalle cliente -->
+    <div class="modal fade" id="clienteDetailModal" tabindex="-1" aria-labelledby="clienteDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="clienteDetailModalLabel">Detalles del Cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Client detail content will be loaded here dynamically -->
+                    <div id="clienteDetailContent" class="container-fluid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para nuevo cliente -->
+    <div class="modal fade" id="nuevoClienteModal" tabindex="-1" aria-labelledby="nuevoClienteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="nuevoClienteModalLabel">Nuevo Cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" id="nuevoClienteForm" novalidate>
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            {% for field in form %}
+                                <div class="col-md-6">
+                                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ field.errors|striptags }}
+                                        </div>
+                                    {% endif %}
+                                    {% if field.help_text %}
+                                        <div class="form-text">{{ field.help_text }}</div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="mt-4 d-flex justify-content-end">
+                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Crear Cliente</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para editar cliente -->
+    <div class="modal fade" id="editarClienteModal" tabindex="-1" aria-labelledby="editarClienteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editarClienteModalLabel">Editar Cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Client edit form will be loaded here dynamically -->
+                    <div id="editarClienteContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var clienteDetailModal = document.getElementById('clienteDetailModal');
+            var clienteDetailContent = document.getElementById('clienteDetailContent');
+
+            clienteDetailModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var url = button.getAttribute('data-url');
+
+                // Clear previous content
+                clienteDetailContent.innerHTML = '<p>Cargando detalles...</p>';
+
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.text();
+                    })
+                    .then(html => {
+                        // Extract the detail content from the response
+                        // Assuming the response contains the full page, we extract the partial content
+                        var parser = new DOMParser();
+                        var doc = parser.parseFromString(html, 'text/html');
+                        var detailContent = doc.querySelector('.container-fluid > .row');
+                        if (detailContent) {
+                            clienteDetailContent.innerHTML = detailContent.outerHTML;
+                        } else {
+                            clienteDetailContent.innerHTML = '<p>No se pudo cargar el detalle del cliente.</p>';
+                        }
+                    })
+                    .catch(error => {
+                        clienteDetailContent.innerHTML = '<p>Error al cargar el detalle del cliente.</p>';
+                        console.error('Fetch error:', error);
+                    });
+            });
+
+            // Modal para editar cliente
+            var editarClienteModal = document.getElementById('editarClienteModal');
+            var editarClienteContent = document.getElementById('editarClienteContent');
+
+            editarClienteModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var url = button.getAttribute('data-url');
+
+                // Clear previous content
+                editarClienteContent.innerHTML = '<p>Cargando formulario...</p>';
+
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.text();
+                    })
+                    .then(html => {
+                        editarClienteContent.innerHTML = html;
+                        // After loading the form, attach submit handler
+                        var form = editarClienteContent.querySelector('#editarClienteForm');
+                        if (form) {
+                            form.addEventListener('submit', function(e) {
+                                e.preventDefault();
+                                var formData = new FormData(form);
+                                fetch(url, {
+                                    method: 'POST',
+                                    body: formData,
+                                    headers: {
+                                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                                    }
+                                })
+                                .then(response => {
+                                    if (response.redirected) {
+                                        // Success, reload the page to show updated data
+                                        window.location.reload();
+                                    } else {
+                                        return response.text();
+                                    }
+                                })
+                                .then(html => {
+                                    if (html) {
+                                        // If there are errors, reload the form
+                                        editarClienteContent.innerHTML = html;
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Submit error:', error);
+                                    editarClienteContent.innerHTML = '<p>Error al guardar los cambios.</p>';
+                                });
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        editarClienteContent.innerHTML = '<p>Error al cargar el formulario.</p>';
+                        console.error('Fetch error:', error);
+                    });
+            });
+
+            // Clear content when modal is hidden
+            editarClienteModal.addEventListener('hidden.bs.modal', function () {
+                editarClienteContent.innerHTML = '';
+            });
+
+            // Reset new client form when modal opens
+            var nuevoClienteModal = document.getElementById('nuevoClienteModal');
+            nuevoClienteModal.addEventListener('show.bs.modal', function () {
+                var form = document.getElementById('nuevoClienteForm');
+                if (form) {
+                    form.reset();
+                }
+            });
+
+            // Handle new client form submit
+            var nuevoClienteForm = document.getElementById('nuevoClienteForm');
+            if (nuevoClienteForm) {
+                nuevoClienteForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    var formData = new FormData(this);
+                    fetch(window.location.href, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                        }
+                    })
+                    .then(response => {
+                        if (response.redirected) {
+                            window.location.reload();
+                        } else {
+                            return response.text();
+                        }
+                    })
+                    .then(html => {
+                        if (html) {
+                            // Reload the form with errors
+                            var parser = new DOMParser();
+                            var doc = parser.parseFromString(html, 'text/html');
+                            var newForm = doc.querySelector('#nuevoClienteForm');
+                            if (newForm) {
+                                document.getElementById('nuevoClienteForm').innerHTML = newForm.innerHTML;
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Submit error:', error);
+                    });
+                });
+            }
+        });
+    </script>
+{% endblock %}

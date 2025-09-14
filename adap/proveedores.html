@@ -1,0 +1,504 @@
+{% extends "base.html" %}
+{% block title %}Gestión de Proveedores - Ferromateriales{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    {% include 'includes/navbar.html' %}
+    {% include 'includes/sidebar.html' %}
+    
+    <!-- Contenido dinámico basado en la vista -->
+    {% if object %}
+        <!-- Vista de Detalle -->
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h3>Detalle del Proveedor: {{ object.razon_social }}</h3>
+                <a href="{% url 'proveedores' %}" class="btn btn-outline-secondary">Volver</a>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Información Básica</h5>
+                        <dl class="row">
+                            <dt class="col-sm-4">RUC:</dt>
+                            <dd class="col-sm-8">{{ object.ruc }}</dd>
+                            
+                            <dt class="col-sm-4">Razón Social:</dt>
+                            <dd class="col-sm-8">{{ object.razon_social }}</dd>
+                            
+                            <dt class="col-sm-4">Rubro:</dt>
+                            <dd class="col-sm-8">{{ object.get_rubro_display }}</dd>
+                            
+                            <dt class="col-sm-4">Dirección:</dt>
+                            <dd class="col-sm-8">{{ object.direccion }}</dd>
+                            
+                            <dt class="col-sm-4">Teléfono:</dt>
+                            <dd class="col-sm-8">{{ object.telefono }}</dd>
+                            
+                            <dt class="col-sm-4">Email:</dt>
+                            <dd class="col-sm-8">{{ object.email }}</dd>
+                            
+                            <dt class="col-sm-4">Estado:</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge bg-{% if object.estado == 'activo' %}success{% elif object.estado == 'suspendido' %}warning{% else %}danger{% endif %}">
+                                    {{ object.get_estado_display }}
+                                </span>
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Información de Contacto</h5>
+                        <dl class="row">
+                            <dt class="col-sm-4">Contacto Principal:</dt>
+                            <dd class="col-sm-8">{{ object.contacto_nombre }}</dd>
+                            
+                            <dt class="col-sm-4">Teléfono Contacto:</dt>
+                            <dd class="col-sm-8">{{ object.contacto_telefono }}</dd>
+                            
+                            <dt class="col-sm-4">Email Contacto:</dt>
+                            <dd class="col-sm-8">{{ object.contacto_email }}</dd>
+                            
+                            <dt class="col-sm-4">Plazo de Pago:</dt>
+                            <dd class="col-sm-8">{{ object.get_plazo_pago_display }}</dd>
+                            
+                            <dt class="col-sm-4">Certificado:</dt>
+                            <dd class="col-sm-8">
+                                {% if object.certificado %}
+                                <i class="fas fa-check text-success"></i>
+                                {% else %}
+                                <i class="fas fa-times text-danger"></i>
+                                {% endif %}
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h5>Productos de este proveedor</h5>
+                        {% if productos %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Precio Compra</th>
+                                        <th>Stock</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for producto in productos %}
+                                    <tr>
+                                        <td>{{ producto.nombre }}</td>
+                                        <td>${{ producto.precio_compra }}</td>
+                                        <td>{{ producto.stock_actual }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info">No hay productos registrados para este proveedor</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h5>Órdenes de Compra</h5>
+                        {% if ordenes %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Orden #</th>
+                                        <th>Fecha</th>
+                                        <th>Total</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for orden in ordenes %}
+                                    <tr>
+                                        <td>{{ orden.numero }}</td>
+                                        <td>{{ orden.fecha|date:"d/m/Y" }}</td>
+                                        <td>${{ orden.total }}</td>
+                                        <td>{{ orden.get_estado_display }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info">No hay órdenes de compra registradas</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'proveedor-update' object.pk %}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Editar Proveedor
+                </a>
+            </div>
+        </div>
+    {% else %}
+        <!-- Vista de Lista -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-truck me-2"></i> Gestión de Proveedores</h2>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#proveedorModal">
+                <i class="fas fa-plus me-1"></i> Nuevo Proveedor
+            </button>
+        </div>
+
+        <!-- Filtros -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="fas fa-filter me-2"></i> Filtros de Búsqueda</h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" name="q" placeholder="Buscar proveedor..." value="{{ request.GET.q }}">
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" name="rubro">
+                            <option value="">Todos los rubros</option>
+                            {% for value, label in form.fields.rubro.choices %}
+                            <option value="{{ value }}" {% if request.GET.rubro == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" name="estado">
+                            <option value="">Todos los estados</option>
+                            {% for value, label in form.fields.estado.choices %}
+                            <option value="{{ value }}" {% if request.GET.estado == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search me-1"></i> Buscar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tarjetas resumen -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-white bg-primary shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title">Proveedores Activos</h6>
+                                <h2 class="mb-0">{{ proveedores_activos }}</h2>
+                            </div>
+                            <i class="fas fa-check-circle fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-success shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title">Órdenes este mes</h6>
+                                <h2 class="mb-0">{{ ordenes_mes }}</h2>
+                            </div>
+                            <i class="fas fa-shopping-cart fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-warning shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title">Pendientes de pago</h6>
+                                <h2 class="mb-0">{{ pendientes_pago }}</h2>
+                            </div>
+                            <i class="fas fa-exclamation-triangle fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-danger shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title">Con alertas</h6>
+                                <h2 class="mb-0">{{ con_alertas }}</h2>
+                            </div>
+                            <i class="fas fa-bell fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de proveedores -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Registro de Proveedores</h5>
+                <div>
+                    <span class="me-3">Total: {{ page_obj.paginator.count }}</span>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-file-export me-1"></i> Exportar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Proveedor</th>
+                                <th>Contacto</th>
+                                <th>Rubro</th>
+                                <th>Última Compra</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for proveedor in page_obj %}
+                            <tr>
+                                <td>{{ forloop.counter0|add:page_obj.start_index }}</td>
+                                <td>
+                                    <strong>{{ proveedor.razon_social }}</strong>
+                                    <div class="small text-muted">RUC: {{ proveedor.ruc }}</div>
+                                </td>
+                                <td>
+                                    <div>{{ proveedor.contacto_nombre }}</div>
+                                    <div class="small text-muted">{{ proveedor.contacto_email }}</div>
+                                    <div class="small text-muted">{{ proveedor.contacto_telefono }}</div>
+                                </td>
+                                <td>{{ proveedor.get_rubro_display }}</td>
+                                <td>
+                                    {% if proveedor.ultima_compra %}
+                                    <div>{{ proveedor.ultima_compra.fecha|date:"d/m/Y" }}</div>
+                                    <div class="small text-muted">${{ proveedor.ultima_compra.total }}</div>
+                                    {% else %}
+                                    <div class="text-muted">Sin compras</div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-{% if proveedor.estado == 'activo' %}success{% elif proveedor.estado == 'suspendido' %}warning{% else %}danger{% endif %}">
+                                        {{ proveedor.get_estado_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'proveedor-detail' proveedor.pk %}" class="btn btn-outline-primary" title="Ver detalle">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'proveedor-update' proveedor.pk %}" class="btn btn-outline-secondary" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button class="btn btn-outline-danger" title="Desactivar" onclick="confirmarDesactivar({{ proveedor.pk }})">
+                                            <i class="fas fa-ban"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center">No hay proveedores registrados</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Paginación -->
+                {% if page_obj.paginator.num_pages > 1 %}
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Anterior</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">Anterior</a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for i in page_obj.paginator.page_range %}
+                        {% if page_obj.number == i %}
+                        <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+                        {% else %}
+                        <li class="page-item"><a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a></li>
+                        {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Siguiente</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">Siguiente</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Modal para formulario (crear/editar) -->
+<div class="modal fade" id="proveedorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    {% if form.instance.pk %}Editar{% else %}Nuevo{% endif %} Proveedor
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" id="proveedorForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="id_razon_social" class="form-label">Razón Social*</label>
+                            {{ form.razon_social }}
+                            {% if form.razon_social.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.razon_social.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_ruc" class="form-label">RUC*</label>
+                            {{ form.ruc }}
+                            {% if form.ruc.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.ruc.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="id_rubro" class="form-label">Rubro*</label>
+                            {{ form.rubro }}
+                            {% if form.rubro.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.rubro.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_telefono" class="form-label">Teléfono*</label>
+                            {{ form.telefono }}
+                            {% if form.telefono.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.telefono.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="id_contacto_nombre" class="form-label">Persona de Contacto*</label>
+                            {{ form.contacto_nombre }}
+                            {% if form.contacto_nombre.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.contacto_nombre.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_contacto_email" class="form-label">Email Contacto*</label>
+                            {{ form.contacto_email }}
+                            {% if form.contacto_email.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.contacto_email.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-12">
+                            <label for="id_direccion" class="form-label">Dirección*</label>
+                            {{ form.direccion }}
+                            {% if form.direccion.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.direccion.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="id_plazo_pago" class="form-label">Plazo de Pago*</label>
+                            {{ form.plazo_pago }}
+                            {% if form.plazo_pago.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.plazo_pago.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_estado" class="form-label">Estado*</label>
+                            {{ form.estado }}
+                            {% if form.estado.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.estado.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="form-check">
+                                {{ form.certificado }}
+                                <label class="form-check-label" for="id_certificado">
+                                    Proveedor certificado (cumple con todos los requisitos)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Proveedor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmarDesactivar(proveedorId) {
+    if (confirm('¿Está seguro que desea desactivar este proveedor?')) {
+        // Aquí puedes hacer una llamada AJAX o redireccionar a una vista específica
+        window.location.href = `/proveedores/${proveedorId}/desactivar/`;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Validación del formulario
+    const form = document.getElementById('proveedorForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            // Validación adicional puede ir aquí
+        });
+    }
+    
+    // Inicialización de tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+{% endblock %}

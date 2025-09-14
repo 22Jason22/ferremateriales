@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+{% block title %}Gestión de Ventas - Ferromateriales{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+    --primary: #4a4097;  /* Morado principal */
+    --secondary: #288acb;  /* Azul secundario */
+    --accent: #cd3774;  /* Rosa/rojo como acento */
+    --light: #e9d8a6;
+    --dark: #001219;
+    --gray: #94d2bd;
+    --white: #ffffff;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-primary:hover {
+    background-color: #3a3379;
+    border-color: #3a3379;
+}
+
+.btn-outline-primary {
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary);
+    color: white;
+}
+
+.bg-success {
+    background-color: #28a745 !important;
+}
+
+.bg-warning {
+    background-color: #ffc107 !important;
+}
+
+.table-light {
+    background-color: #f8f9fa;
+}
+
+.card-header {
+    background-color: rgba(74, 64, 151, 0.1);
+    border-bottom: 1px solid rgba(74, 64, 151, 0.2);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.pagination .page-link {
+    color: var(--primary);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-cash-register me-2"></i> Gestión de Ventas</h2>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevaVentaModal">
+            <i class="fas fa-plus me-1"></i> Nueva Venta
+        </button>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Fecha Inicio</label>
+                        <input type="date" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Fecha Fin</label>
+                        <input type="date" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Cliente</label>
+                        <select class="form-select">
+                            <option>Todos los clientes</option>
+                            <option>Constructora Andina</option>
+                            <option>Ingeniería Civil SAC</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Estado</label>
+                        <select class="form-select">
+                            <option>Todos</option>
+                            <option>Pendiente</option>
+                            <option>Completada</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="fas fa-filter me-1"></i> Filtrar
+                        </button>
+                        <button type="reset" class="btn btn-outline-secondary">
+                            <i class="fas fa-undo me-1"></i> Limpiar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Listado de ventas -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Registro de Ventas</h5>
+            <div>
+                <span class="me-3">Total registros: 124</span>
+                <button class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-file-export me-1"></i> Exportar
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID Venta</th>
+                            <th>Fecha</th>
+                            <th>Cliente</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>VEN-2023-00125</td>
+                            <td>15/11/2023</td>
+                            <td>Constructora Andina</td>
+                            <td>$2,450.00</td>
+                            <td><span class="badge bg-success">Completada</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" title="Ver detalle">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>VEN-2023-00126</td>
+                            <td>16/11/2023</td>
+                            <td>Ingeniería Civil SAC</td>
+                            <td>$1,780.50</td>
+                            <td><span class="badge bg-warning">Pendiente</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" title="Ver detalle">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Paginación -->
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Anterior</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Siguiente</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para nueva venta -->
+<div class="modal fade" id="nuevaVentaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Registrar Nueva Venta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Cliente</label>
+                            <select class="form-select" required>
+                                <option value="">Seleccionar cliente...</option>
+                                <option>Constructora Andina</option>
+                                <option>Ingeniería Civil SAC</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha</label>
+                            <input type="date" class="form-control" required>
+                        </div>
+                        
+                        <!-- Productos -->
+                        <div class="col-12 mt-4">
+                            <h6>Productos</h6>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Producto</th>
+                                            <th>Cantidad</th>
+                                            <th>Precio Unit.</th>
+                                            <th>Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <select class="form-select">
+                                                    <option>Producto A</option>
+                                                    <option>Producto B</option>
+                                                </select>
+                                            </td>
+                                            <td><input type="number" class="form-control" value="1"></td>
+                                            <td><input type="text" class="form-control" value="$100.00"></td>
+                                            <td>$100.00</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-primary mt-2">
+                                <i class="fas fa-plus me-1"></i> Agregar Producto
+                            </button>
+                        </div>
+                        
+                        <!-- Totales -->
+                        <div class="col-md-6 offset-md-6 mt-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <span>$100.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>IGV (18%):</span>
+                                <span>$18.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between fw-bold">
+                                <span>Total:</span>
+                                <span>$118.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary">Guardar Venta</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Funcionalidad básica para agregar productos
+document.addEventListener('DOMContentLoaded', function() {
+    // Aquí puedes agregar la lógica JavaScript necesaria
+    console.log('Página de ventas cargada');
+});
+</script>
+{% endblock %}

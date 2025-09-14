@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Ferromateriales - Sistema de Gestión{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/adap.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Navbar -->
+        {% include 'includes/navbar.html' %}
+        
+        <div class="main-container">
+            <!-- Sidebar -->
+            {% include 'includes/sidebar.html' %}
+            
+            <!-- Contenido principal -->
+            <main class="content" id="mainContent">
+                {% include 'includes/messages.html' %}
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{% static 'js/adap.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

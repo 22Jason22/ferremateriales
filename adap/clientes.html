@@ -1,0 +1,487 @@
+{% extends "base.html" %}
+{% block title %}Gestión de Clientes - Ferromateriales{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-users me-2"></i> Gestión de Clientes</h2>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevoClienteModal">
+            <i class="fas fa-plus me-1"></i> Nuevo Cliente
+        </button>
+    </div>
+
+    <!-- Filtros avanzados -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0"><i class="fas fa-filter me-2"></i> Filtros de Búsqueda</h5>
+        </div>
+        <div class="card-body">
+            <form id="filtroClientes">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="filtroNombre" class="form-label">Nombre/Razón Social</label>
+                        <input type="text" class="form-control" id="filtroNombre" placeholder="Buscar cliente...">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="filtroTipo" class="form-label">Tipo de Cliente</label>
+                        <select class="form-select" id="filtroTipo">
+                            <option value="">Todos los tipos</option>
+                            <option value="constructor">Constructora</option>
+                            <option value="ferreteria">Ferretería</option>
+                            <option value="particular">Particular</option>
+                            <option value="gobierno">Gobierno</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="filtroEstado" class="form-label">Estado</label>
+                        <select class="form-select" id="filtroEstado">
+                            <option value="">Todos</option>
+                            <option value="activo">Activo</option>
+                            <option value="inactivo">Inactivo</option>
+                            <option value="moroso">Moroso</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100 me-2">
+                            <i class="fas fa-search me-1"></i> Buscar
+                        </button>
+                        <button type="reset" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-undo me-1"></i> Limpiar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tarjetas resumen -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Clientes Activos</h6>
+                            <h2 class="mb-0">156</h2>
+                        </div>
+                        <i class="fas fa-user-check fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Ventas este mes</h6>
+                            <h2 class="mb-0">84</h2>
+                        </div>
+                        <i class="fas fa-shopping-cart fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Clientes Morosos</h6>
+                            <h2 class="mb-0">12</h2>
+                        </div>
+                        <i class="fas fa-exclamation-triangle fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Nuevos este mes</h6>
+                            <h2 class="mb-0">18</h2>
+                        </div>
+                        <i class="fas fa-user-plus fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Listado de clientes -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Registro de Clientes</h5>
+            <div>
+                <span class="me-3">Total registros: 156</span>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-file-export me-1"></i> Exportar
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-cog me-1"></i> Configurar
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Cliente</th>
+                            <th>Contacto</th>
+                            <th>Tipo</th>
+                            <th>Última Compra</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>
+                                <strong>Constructora Andina S.A.</strong>
+                                <div class="small text-muted">RUC: 20123456789</div>
+                            </td>
+                            <td>
+                                <div>Carlos Mendoza</div>
+                                <div class="small text-muted">cmendoza@constructora.com</div>
+                                <div class="small text-muted">987654321</div>
+                            </td>
+                            <td>Constructora</td>
+                            <td>
+                                <div>15/06/2023</div>
+                                <div class="small text-muted">$3,450.00</div>
+                            </td>
+                            <td><span class="badge bg-success">Activo</span></td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" title="Ver detalle" onclick="verDetalleCliente(1)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary" title="Editar" onclick="editarCliente(1)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-outline-info" title="Historial" onclick="verHistorialCliente(1)">
+                                        <i class="fas fa-history"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Más filas de clientes... -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Paginación -->
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Anterior</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Siguiente</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para nuevo cliente -->
+<div class="modal fade" id="nuevoClienteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Registrar Nuevo Cliente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formCliente">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="clienteRazonSocial" class="form-label">Razón Social/Nombre*</label>
+                            <input type="text" class="form-control" id="clienteRazonSocial" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="clienteIdentificacion" class="form-label">RUC/DNI*</label>
+                            <input type="text" class="form-control" id="clienteIdentificacion" required>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="clienteTipo" class="form-label">Tipo de Cliente*</label>
+                            <select class="form-select" id="clienteTipo" required>
+                                <option value="">Seleccionar tipo...</option>
+                                <option value="constructor">Constructora</option>
+                                <option value="ferreteria">Ferretería</option>
+                                <option value="particular">Particular</option>
+                                <option value="gobierno">Gobierno</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="clienteTelefono" class="form-label">Teléfono*</label>
+                            <input type="tel" class="form-control" id="clienteTelefono" required>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="clienteContacto" class="form-label">Persona de Contacto*</label>
+                            <input type="text" class="form-control" id="clienteContacto" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="clienteEmail" class="form-label">Email*</label>
+                            <input type="email" class="form-control" id="clienteEmail" required>
+                        </div>
+                        
+                        <div class="col-12">
+                            <label for="clienteDireccion" class="form-label">Dirección*</label>
+                            <textarea class="form-control" id="clienteDireccion" rows="2" required></textarea>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="clienteLimiteCredito" class="form-label">Límite de Crédito (S/.)</label>
+                            <input type="number" class="form-control" id="clienteLimiteCredito" value="0">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="clienteEstado" class="form-label">Estado*</label>
+                            <select class="form-select" id="clienteEstado" required>
+                                <option value="activo" selected>Activo</option>
+                                <option value="inactivo">Inactivo</option>
+                                <option value="moroso">Moroso</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="formCliente" class="btn btn-primary">Guardar Cliente</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para detalles del cliente -->
+<div class="modal fade" id="detalleClienteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalles del Cliente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h6>Información Básica</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-4 fw-bold">Razón Social:</div>
+                                    <div class="col-md-8" id="detalleRazonSocial">Constructora Andina S.A.</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-4 fw-bold">RUC:</div>
+                                    <div class="col-md-8" id="detalleRuc">20123456789</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-4 fw-bold">Tipo:</div>
+                                    <div class="col-md-8" id="detalleTipo">Constructora</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-4 fw-bold">Estado:</div>
+                                    <div class="col-md-8"><span class="badge bg-success" id="detalleEstado">Activo</span></div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-4 fw-bold">Contacto:</div>
+                                    <div class="col-md-8" id="detalleContacto">Carlos Mendoza</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-4 fw-bold">Email:</div>
+                                    <div class="col-md-8" id="detalleEmail">cmendoza@constructora.com</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-4 fw-bold">Teléfono:</div>
+                                    <div class="col-md-8" id="detalleTelefono">987654321</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 fw-bold">Dirección:</div>
+                                    <div class="col-md-8" id="detalleDireccion">Av. Los Constructores 123, Lima</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h6>Información Comercial</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-6 fw-bold">Límite de Crédito:</div>
+                                    <div class="col-md-6" id="detalleLimiteCredito">S/. 10,000.00</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6 fw-bold">Crédito Utilizado:</div>
+                                    <div class="col-md-6" id="detalleCreditoUtilizado">S/. 4,500.00</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6 fw-bold">Saldo Disponible:</div>
+                                    <div class="col-md-6 fw-bold" id="detalleSaldoDisponible">S/. 5,500.00</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6 fw-bold">Última Compra:</div>
+                                    <div class="col-md-6" id="detalleUltimaCompra">15/06/2023</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6 fw-bold">Total Compras (año):</div>
+                                    <div class="col-md-6" id="detalleTotalCompras">S/. 28,450.00</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 fw-bold">Promedio Mensual:</div>
+                                    <div class="col-md-6" id="detallePromedioMensual">S/. 4,741.67</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h6>Historial de Compras</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>N° Factura</th>
+                                        <th>Productos</th>
+                                        <th>Subtotal</th>
+                                        <th>IGV</th>
+                                        <th>Total</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historialCompras">
+                                    <!-- Datos dinámicos del historial -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary">Imprimir Reporte</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Validación del formulario
+    const formCliente = document.getElementById('formCliente');
+    if (formCliente) {
+        formCliente.addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Lógica para guardar el cliente
+            alert('Cliente guardado correctamente');
+            $('#nuevoClienteModal').modal('hide');
+        });
+    }
+    
+    // Inicialización de tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    // Búsqueda en tiempo real
+    const filtroNombre = document.getElementById('filtroNombre');
+    if (filtroNombre) {
+        filtroNombre.addEventListener('input', function() {
+            // Lógica para filtrar clientes
+            console.log('Buscando:', this.value);
+        });
+    }
+});
+
+function verDetalleCliente(idCliente) {
+    // Aquí iría la lógica para cargar los datos del cliente
+    // Simulamos datos estáticos para el ejemplo
+    $('#detalleRazonSocial').text('Constructora Andina S.A.');
+    $('#detalleRuc').text('20123456789');
+    $('#detalleTipo').text('Constructora');
+    $('#detalleEstado').text('Activo').removeClass().addClass('badge bg-success');
+    $('#detalleContacto').text('Carlos Mendoza');
+    $('#detalleEmail').text('cmendoza@constructora.com');
+    $('#detalleTelefono').text('987654321');
+    $('#detalleDireccion').text('Av. Los Constructores 123, Lima');
+    $('#detalleLimiteCredito').text('S/. 10,000.00');
+    $('#detalleCreditoUtilizado').text('S/. 4,500.00');
+    $('#detalleSaldoDisponible').text('S/. 5,500.00');
+    $('#detalleUltimaCompra').text('15/06/2023');
+    $('#detalleTotalCompras').text('S/. 28,450.00');
+    $('#detallePromedioMensual').text('S/. 4,741.67');
+    
+    // Simulamos el historial de compras
+    const historial = `
+        <tr>
+            <td>15/06/2023</td>
+            <td>FAC-001-0001245</td>
+            <td>5 productos</td>
+            <td>S/. 2,500.00</td>
+            <td>S/. 450.00</td>
+            <td>S/. 2,950.00</td>
+            <td><span class="badge bg-success">Pagado</span></td>
+        </tr>
+        <tr>
+            <td>02/06/2023</td>
+            <td>FAC-001-0001238</td>
+            <td>3 productos</td>
+            <td>S/. 1,800.00</td>
+            <td>S/. 324.00</td>
+            <td>S/. 2,124.00</td>
+            <td><span class="badge bg-success">Pagado</span></td>
+        </tr>
+        <tr>
+            <td>18/05/2023</td>
+            <td>FAC-001-0001221</td>
+            <td>7 productos</td>
+            <td>S/. 3,200.00</td>
+            <td>S/. 576.00</td>
+            <td>S/. 3,776.00</td>
+            <td><span class="badge bg-warning">Pendiente</span></td>
+        </tr>
+    `;
+    $('#historialCompras').html(historial);
+    
+    $('#detalleClienteModal').modal('show');
+}
+
+function editarCliente(idCliente) {
+    // Lógica para cargar datos en el formulario de edición
+    console.log('Editando cliente ID:', idCliente);
+    $('#nuevoClienteModal').modal('show');
+}
+
+function verHistorialCliente(idCliente) {
+    // Lógica para mostrar historial completo
+    console.log('Mostrando historial del cliente ID:', idCliente);
+    verDetalleCliente(idCliente); // Por ahora usamos el mismo modal
+}
+</script>
+{% endblock %}

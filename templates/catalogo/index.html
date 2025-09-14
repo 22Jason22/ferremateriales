@@ -1,0 +1,621 @@
+{% extends "base.html" %}
+{% load static %}
+{% load mathfilters %}
+
+{% block title %}Catálogo de Productos - Ferromateriales{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+    --primary: #4a4097;
+    --secondary: #4a4097;
+    --accent: #cd3774;
+    --light: #e9d8a6;
+    --dark: #001219;
+    --gray: #94d2bd;
+    --white: #ffffff;
+    --primary-light: #6a5acd;
+    --primary-dark: #3a3278;
+    --secondary-light: #ffffff;
+    --accent-light: #ff4d8d;
+}
+
+/* Estructura principal */
+.catalog-container {
+    background-color: #f8f9fa;
+    padding: 2rem 0;
+}
+
+/* Barra de búsqueda mejorada */
+.search-bar-container {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.search-bar {
+    position: relative;
+}
+
+.search-bar input {
+    padding-left: 3rem;
+    border-radius: 50px;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.search-bar .search-icon {
+    position: absolute;
+    left: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary);
+}
+
+/* Tarjetas de productos premium */
+.product-card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    background-color: var(--white);
+}
+
+.product-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.product-img-container {
+    height: 200px;
+    overflow: hidden;
+    position: relative;
+    background-color: #f5f5f5;
+}
+
+.product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.5s ease;
+    padding: 10px;
+}
+
+.product-card:hover .product-img {
+    transform: scale(1.05);
+}
+
+.product-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.3rem 0.8rem;
+    border-radius: 50px;
+}
+
+.badge-offer {
+    background-color: var(--accent);
+    color: var(--dark);
+}
+
+.badge-new {
+    background-color: var(--primary);
+    color: white;
+}
+
+.badge-stock {
+    background-color: var(--secondary);
+    color: white;
+}
+
+.product-body {
+    padding: 1.5rem;
+}
+
+.product-title {
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.product-category {
+    color: var(--secondary);
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.product-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    height: 40px;
+    overflow: hidden;
+}
+
+.product-price {
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 1.2rem;
+}
+
+.product-old-price {
+    text-decoration: line-through;
+    color: #adb5bd;
+    font-size: 0.9rem;
+    margin-left: 0.5rem;
+}
+
+.product-actions {
+    border-top: 1px solid #f1f1f1;
+    padding: 1rem 1.5rem;
+}
+
+/* Filtros premium */
+.filter-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+}
+
+.filter-header {
+    background-color: var(--primary);
+    color: white;
+    padding: 1rem;
+    border-radius: 12px 12px 0 0 !important;
+    font-weight: 600;
+}
+
+.filter-body {
+    padding: 1.5rem;
+}
+
+.filter-section {
+    margin-bottom: 1.5rem;
+}
+
+.filter-title {
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.filter-title:after {
+    content: "+";
+    font-weight: 300;
+}
+
+.filter-options {
+    list-style: none;
+    padding-left: 0;
+}
+
+.filter-option {
+    margin-bottom: 0.5rem;
+}
+
+.filter-option a {
+    color: #495057;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+}
+
+.filter-option a:hover {
+    color: var(--primary);
+    transform: translateX(5px);
+}
+
+.filter-option .badge {
+    background-color: var(--light);
+    color: var(--dark);
+}
+
+/* Sección de productos */
+.section-title {
+    position: relative;
+    margin-bottom: 2rem;
+    font-weight: 700;
+    color: var(--dark);
+}
+
+.section-title:after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background-color: var(--accent);
+}
+
+/* Botones mejorados */
+.btn-custom {
+    border-radius: 50px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary-custom {
+    background-color: var(--secondary-light);
+    border-color: var(--secondary-light);
+}
+
+.btn-primary-custom:hover {
+    background-color: var(--secondary);
+    border-color: var(--secondary);
+    transform: translateY(-2px);
+}
+
+.btn-outline-custom {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.btn-outline-custom:hover {
+    background-color: var(--primary);
+    color: white;
+}
+
+/* Efectos hover */
+.hover-shadow {
+    transition: all 0.3s ease;
+}
+
+.hover-shadow:hover {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .product-img-container {
+        height: 150px;
+    }
+
+    .filter-mobile-toggle {
+        display: block;
+        margin-bottom: 1rem;
+    }
+
+    .filter-col {
+        display: none;
+    }
+
+    .filter-col.show {
+        display: block;
+    }
+}
+
+/* Paginación */
+.pagination .page-link {
+    color: var(--primary);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+/* Modal */
+.modal-content {
+    border-radius: 12px;
+}
+
+.modal-header {
+    background-color: var(--primary);
+    color: white;
+    border-radius: 12px 12px 0 0;
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+.product-detail-img {
+    width: 100%;
+    height: 300px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="catalog-container">
+    <div class="container">
+        <!-- Barra de búsqueda premium -->
+        <div class="search-bar-container mb-5 hover-shadow">
+            <div class="row align-items-center">
+                <div class="col-md-8 mb-3 mb-md-0">
+                    <form method="get" action="{% url 'catalog' %}">
+                        <div class="search-bar">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" name="search" class="form-control form-control-lg" placeholder="Buscar materiales, marcas, categorías..." value="{{ search_query }}">
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex">
+                        <select name="category" class="form-select me-2" onchange="filterByCategory(this.value)">
+                            <option value="">Todas categorías</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}" {% if selected_category == category.id %}selected{% endif %}>{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button class="btn btn-primary-custom btn-custom">
+                            <i class="fas fa-filter me-1"></i> Filtrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Breadcrumb mejorado -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
+                <li class="breadcrumb-item active" aria-current="page">Catálogo de Productos</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <!-- Columna de filtros -->
+            <div class="col-lg-3">
+                <button class="btn btn-outline-custom btn-custom w-100 mb-3 filter-mobile-toggle d-lg-none">
+                    <i class="fas fa-sliders-h me-2"></i> Filtros
+                </button>
+
+                <div class="filter-col" id="filterCol">
+                    <!-- Filtro por categorías -->
+                    <div class="filter-card hover-shadow">
+                        <div class="filter-header">
+                            <i class="fas fa-boxes me-2"></i> Categorías
+                        </div>
+                        <div class="filter-body">
+                            <ul class="filter-options">
+                                {% for category in categories %}
+                                <li class="filter-option">
+                                    <a href="?category={{ category.id }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                        <span>{{ category.name }}</span>
+                                        <span class="badge rounded-pill">{{ category.product_count }}</span>
+                                    </a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Filtro por precio -->
+                    <div class="filter-card hover-shadow mt-4">
+                        <div class="filter-header">
+                            <i class="fas fa-tags me-2"></i> Rango de Precios
+                        </div>
+                        <div class="filter-body">
+                            <form method="get" action="{% url 'catalog' %}">
+                                {% if search_query %}<input type="hidden" name="search" value="{{ search_query }}">{% endif %}
+                                {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+                                <div class="mb-3">
+                                    <label for="price_min" class="form-label">Precio mínimo</label>
+                                    <input type="number" step="0.01" class="form-control" id="price_min" name="price_min" value="{{ request.GET.price_min }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="price_max" class="form-label">Precio máximo</label>
+                                    <input type="number" step="0.01" class="form-control" id="price_max" name="price_max" value="{{ request.GET.price_max }}">
+                                </div>
+                                <button type="submit" class="btn btn-primary-custom btn-custom w-100">Aplicar Filtro</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Ordenar por -->
+                    <div class="filter-card hover-shadow mt-4">
+                        <div class="filter-header">
+                            <i class="fas fa-sort me-2"></i> Ordenar por
+                        </div>
+                        <div class="filter-body">
+                            <select class="form-select" onchange="sortProducts(this.value)">
+                                <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Nombre</option>
+                                <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Precio (menor a mayor)</option>
+                                <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Precio (mayor a menor)</option>
+                                <option value="new" {% if sort_by == 'new' %}selected{% endif %}>Novedades</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna de productos -->
+            <div class="col-lg-9">
+                <!-- Todos los productos -->
+                <div class="all-products">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="section-title mb-0">Productos Disponibles</h3>
+                        <div class="d-flex align-items-center">
+                            <span class="me-2">{{ products.paginator.count }} productos encontrados</span>
+                        </div>
+                    </div>
+
+                    {% if products %}
+                    <div class="row">
+                        {% for product in products %}
+                        <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                            <div class="product-card h-100">
+                                <div class="product-img-container">
+                                    {% if product.image %}
+                                    <img src="{{ product.image.url }}" class="product-img" alt="{{ product.name }}">
+                                    {% else %}
+                                    <img src="{% static 'images/no-image.png' %}" class="product-img" alt="Sin imagen">
+                                    {% endif %}
+                                    {% if product.is_new %}
+                                    <span class="product-badge badge-new">NUEVO</span>
+                                    {% elif product.discount_percent > 0 %}
+                                    <span class="product-badge badge-offer">{{ product.discount_percent }}% OFF</span>
+                                    {% endif %}
+                                    {% if product.current_stock == 0 %}
+                                    <span class="product-badge badge-stock">AGOTADO</span>
+                                    {% endif %}
+                                </div>
+                                <div class="product-body">
+                                    <span class="product-category">{{ product.category.name }}</span>
+                                    <h5 class="product-title">{{ product.name }}</h5>
+                                    <p class="product-description">{{ product.description|truncatechars:60|default:"Sin descripción" }}</p>
+                                    <div class="d-flex align-items-center">
+                                        {% if product.discount_percent > 0 %}
+                                        <span class="product-price">${{ product.price|floatformat:2 }}</span>
+                                        {% else %}
+                                        <span class="product-price">${{ product.price|floatformat:2 }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="product-actions text-center">
+                                    <button class="btn btn-primary-custom btn-custom" data-bs-toggle="modal" data-bs-target="#productModal-{{ product.pk }}">
+                                        <i class="fas fa-eye me-2"></i> Ver Detalles
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Paginación -->
+                    {% if products.paginator.num_pages > 1 %}
+                    <nav aria-label="Page navigation" class="mt-5">
+                        <ul class="pagination justify-content-center">
+                            {% if products.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ products.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if request.GET.price_min %}&price_min={{ request.GET.price_min }}{% endif %}{% if request.GET.price_max %}&price_max={{ request.GET.price_max }}{% endif %}&sort={{ sort_by }}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            {% for num in products.paginator.page_range %}
+                            {% if products.number == num %}
+                            <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                            {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if request.GET.price_min %}&price_min={{ request.GET.price_min }}{% endif %}{% if request.GET.price_max %}&price_max={{ request.GET.price_max }}{% endif %}&sort={{ sort_by }}">{{ num }}</a></li>
+                            {% endif %}
+                            {% endfor %}
+
+                            {% if products.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ products.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if request.GET.price_min %}&price_min={{ request.GET.price_min }}{% endif %}{% if request.GET.price_max %}&price_max={{ request.GET.price_max }}{% endif %}&sort={{ sort_by }}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h4>No se encontraron productos</h4>
+                        <p class="text-muted">Intenta con otros términos de búsqueda o filtros.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales de productos -->
+{% for product in products %}
+<div class="modal fade" id="productModal-{{ product.pk }}" tabindex="-1" aria-labelledby="productModalLabel-{{ product.pk }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productModalLabel-{{ product.pk }}">{{ product.name }}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" class="product-detail-img" alt="{{ product.name }}">
+                        {% else %}
+                        <img src="{% static 'images/no-image.png' %}" class="product-detail-img" alt="Sin imagen">
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <h4>{{ product.name }}</h4>
+                        <p class="text-muted">{{ product.category.name }}</p>
+                        <div class="mb-3">
+                            <strong>Precio:</strong>
+                            {% if product.discount_percent > 0 %}
+                            <span class="product-price">${{ product.price|floatformat:2 }}</span>
+                            {% else %}
+                            <span class="product-price">${{ product.price|floatformat:2 }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <strong>Unidad:</strong> {{ product.unit }}
+                        </div>
+                        <div class="mb-3">
+                            <strong>Stock disponible:</strong> {{ product.current_stock }}
+                        </div>
+                        {% if product.is_new %}
+                        <div class="mb-3">
+                            <span class="badge badge-new">Producto Nuevo</span>
+                        </div>
+                        {% endif %}
+                        <div class="mb-3">
+                            <strong>Descripción:</strong>
+                            <p>{{ product.description|default:"Sin descripción disponible" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary-custom">Agregar al Carrito</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Mostrar/ocultar filtros en móvil
+    document.querySelector('.filter-mobile-toggle').addEventListener('click', function() {
+        document.getElementById('filterCol').classList.toggle('show');
+    });
+
+    // Función para filtrar por categoría
+    window.filterByCategory = function(categoryId) {
+        const url = new URL(window.location);
+        if (categoryId) {
+            url.searchParams.set('category', categoryId);
+        } else {
+            url.searchParams.delete('category');
+        }
+        window.location.href = url.toString();
+    };
+
+    // Función para ordenar productos
+    window.sortProducts = function(sortValue) {
+        const url = new URL(window.location);
+        url.searchParams.set('sort', sortValue);
+        window.location.href = url.toString();
+    };
+});
+</script>
+{% endblock %}

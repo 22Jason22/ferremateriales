@@ -1,0 +1,190 @@
+<div id="sidebar" class="sidebar">
+    <div class="sidebar-content-wrapper">
+        <div class="sidebar-header d-flex justify-content-start align-items-start">
+            <div>
+                <h1>Ferrematerials</h1>
+                <p>Management System</p>
+            </div>
+        </div>
+        <nav class="sidebar-nav d-flex justify-content-start">
+            <ul class="nav flex-column align-items-start w-100">
+                <li class="nav-item w-100">
+                    <a class="nav-link d-flex align-items-center justify-content-start" href="#">
+                        <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item w-100">
+                    <a class="nav-link d-flex align-items-center justify-content-start" href="product_list.html">
+                        <i class="bi bi-box-seam me-2"></i> Catalog <span class="new-label ms-2">New</span>
+                    </a>
+                </li>
+                <li class="nav-item w-100">
+                    <a class="nav-link d-flex align-items-center justify-content-start" href="#">
+                        <i class="bi bi-cart4 me-2" ></i> Sales <span class="badge bg-danger ms-2">15</span>
+                    </a>
+                </li>
+                <li class="nav-item w-100">
+                    <a class="nav-link d-flex align-items-center justify-content-start" href="#">
+                        <i class="bi bi-bag-check me-2"></i> Purchases <span class="badge bg-danger ms-2">8</span>
+                    </a>
+                </li>
+                <li class="nav-item w-100">
+                    <a class="nav-link d-flex align-items-center justify-content-start" href="#">
+                        <i class="bi bi-box2-heart me-2"></i> Inventory
+                    </a>
+                </li>
+                <li class="nav-item w-100">
+                    <a class="nav-link d-flex align-items-center justify-content-start" href="#">
+                        <i class="bi bi-people me-2"></i> Suppliers
+                    </a>
+                </li>
+                <li class="nav-item w-100">
+                    <a class="nav-link d-flex align-items-center justify-content-start" href="#">
+                        <i class="bi bi-person-badge me-2"></i> Customers
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer d-flex justify-content-start flex-column align-items-start">
+            <h4>Reports</h4>
+            <ul>
+                <li><a href="#">Statistics</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+.sidebar {
+    width: 200px;
+    background-color: #2e2a5f;
+    color: white;
+    height: 100vh;
+    padding: 20px 8px 15px 8px;
+    box-sizing: border-box;
+    position: fixed;
+    top: 0;
+    left: 0;
+    transition: width 0.3s ease, box-shadow 0.3s ease;
+    overflow-x: hidden;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+}
+.sidebar.collapsed {
+    width: 50px;
+}
+.container {
+    margin-left: 200px;
+    transition: margin-left 0.3s ease;
+}
+.container.sidebar-collapsed {
+    margin-left: 50px;
+}
+.sidebar-header {
+    margin-bottom: 0px;
+}
+.sidebar-header h1 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    transition: opacity 0.3s ease;
+}
+.sidebar-header p {
+    font-size: 13px;
+    color: #b0a9d6;
+    margin-top: 6px;
+    transition: opacity 0.3s ease;
+}
+.sidebar.collapsed .sidebar-header h1,
+.sidebar.collapsed .sidebar-header p {
+    opacity: 0;
+    pointer-events: none;
+    user-select: none;
+}
+.sidebar.collapsed .sidebar-header {
+    justify-content: center;
+}
+.sidebar-nav ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+}
+.sidebar-nav ul li {
+    margin-bottom: 18px;
+}
+.sidebar-nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+}
+.sidebar-nav ul li a:hover {
+    background-color: #4b3ca7;
+    text-decoration: none;
+    opacity: 0.9;
+}
+.sidebar.collapsed .sidebar-nav ul li a {
+    justify-content: center;
+}
+.sidebar.collapsed .sidebar-nav ul li a span {
+    display: none;
+}
+.new-label {
+    background-color: #4b3ca7;
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: bold;
+    margin-left: 8px;
+}
+.badge {
+    background-color: #ff4b8b;
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 12px;
+    color: white;
+    margin-left: 8px;
+    min-width: 24px;
+    text-align: center;
+}
+.sidebar-footer {
+    margin-top: 50px;
+}
+.sidebar-footer h4 {
+    font-size: 15px;
+    margin-bottom: 12px;
+    color: #b0a9d6;
+    transition: opacity 0.3s ease;
+}
+.sidebar-footer ul {
+    list-style: none;
+    padding: 0;
+}
+.sidebar-footer ul li {
+    margin-bottom: 12px;
+}
+.sidebar-footer ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+.sidebar-footer ul li a:hover {
+    color: #4b3ca7;
+}
+.sidebar.collapsed .sidebar-footer {
+    opacity: 0;
+    pointer-events: none;
+    user-select: none;
+}
+</style>
+
+
