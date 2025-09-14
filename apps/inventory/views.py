@@ -8,6 +8,7 @@ from django.db.models import Count, Min, Max, Q
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django.core.paginator import Paginator
+from django.contrib import messages
 
 from rest_framework import viewsets
 
@@ -22,43 +23,6 @@ def product_list(request):
     category_id = request.GET.get('category', '')
     price_min = request.GET.get('price_min')
     price_max = request.GET.get('price_max')
-
-    # Initialize forms
-    add_form = ProductForm(prefix='add')
-    
-    context = {
-        'open_modal': None
-    }
-
-    # Handle POST requests
-    if request.method == 'POST':
-        action = request.POST.get('action')
-        if action == 'add':
-            add_form = ProductForm(request.POST, request.FILES, prefix='add')
-            if add_form.is_valid():
-                add_form.save()
-                return redirect('inventory:product_list')
-            else:
-                context['open_modal'] = 'add'
-        elif action == 'edit':
-            pk = request.POST.get('pk')
-            product = get_object_or_404(Product, pk=pk)
-            edit_form = ProductForm(request.POST, request.FILES, instance=product, prefix=f'edit-{pk}')
-            if edit_form.is_valid():
-                edit_form.save()
-                return redirect('inventory:product_list')
-            else:
-                # This part is tricky, as we need to pass the invalid form back to the specific product
-                # We will handle this by re-creating the product list and replacing the form for the specific product
-                context['open_modal'] = f'edit-{pk}'
-                context['invalid_edit_form'] = edit_form
-                context['invalid_edit_pk'] = pk
-
-        elif action == 'delete':
-            pk = request.POST.get('pk')
-            product = get_object_or_404(Product, pk=pk)
-            product.delete()
-            return redirect('inventory:product_list')
 
     # Filtrar productos según búsqueda y categoría
     products = Product.objects.all()
@@ -88,26 +52,76 @@ def product_list(request):
     out_of_stock_count = Product.objects.filter(current_stock=0).count()
     low_stock_count = Product.objects.filter(current_stock__gt=0, current_stock__lt=5).count()
 
-    # Crear formularios para edición de cada producto
-    for product in products:
-        if context.get('invalid_edit_pk') == str(product.pk):
-            product.edit_form = context['invalid_edit_form']
-        else:
-            product.edit_form = ProductForm(instance=product, prefix=f'edit-{product.pk}')
-
-
-    context.update({
+    context = {
         'products': products,
         'categories': categories,
         'price_min': price_range['min_price'] or 0,
         'price_max': price_range['max_price'] or 0,
         'search_query': search_query,
         'selected_category': int(category_id) if category_id else None,
-        'add_form': add_form,
         'out_of_stock_count': out_of_stock_count,
         'low_stock_count': low_stock_count,
-    })
+    }
     return render(request, 'inventory/product_list.html', context)
+
+
+def product_add(request):
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Producto agregado correctamente.')
+            return redirect('inventory:product_list')
+    else:
+        form = ProductForm()
+
+    context = {
+        'form': form
+    }
+
+    if request.GET.get('modal') == '1':
+        return render(request, 'inventory/_product_form.html', context)
+    
+    return render(request, 'inventory/product_add.html', context)
+
+
+def product_edit(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Producto actualizado correctamente.')
+            return redirect('inventory:product_list')
+    else:
+        form = ProductForm(instance=product)
+
+    context = {
+        'form': form,
+        'product': product
+    }
+
+    if request.GET.get('modal') == '1':
+        return render(request, 'inventory/_product_form.html', context)
+
+    return render(request, 'inventory/product_edit.html', context)
+
+
+def product_delete(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    if request.method == 'POST':
+        product.delete()
+        messages.success(request, 'Producto eliminado correctamente.')
+        return redirect('inventory:product_list')
+    
+    context = {
+        'product': product
+    }
+
+    if request.GET.get('modal') == '1':
+        return render(request, 'inventory/product_confirm_delete.html', context)
+    
+    return render(request, 'inventory/product_confirm_delete.html', context)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):

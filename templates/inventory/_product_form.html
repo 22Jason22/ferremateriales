@@ -1,4 +1,4 @@
-<form method="post" action="{% if sale %}{% url 'sales:sales_edit' sale.pk %}?modal=1{% else %}{% url 'sales:sales_create' %}?modal=1{% endif %}" novalidate>
+<form method="post" action="{% if product %}{% url 'inventory:product_edit' product.pk %}?modal=1{% else %}{% url 'inventory:product_add' %}?modal=1{% endif %}" enctype="multipart/form-data" novalidate>
     {% csrf_token %}
     <div class="row g-3">
         {% for field in form %}
@@ -17,6 +17,6 @@
     </div>
     <div class="mt-4 d-flex justify-content-end">
         <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
-        <button type="submit" class="btn btn-primary">{% if sale %}Guardar Cambios{% else %}Crear Venta{% endif %}</button>
+        <button type="submit" class="btn btn-primary">{% if product %}Guardar Cambios{% else %}Crear Producto{% endif %}</button>
     </div>
 </form>

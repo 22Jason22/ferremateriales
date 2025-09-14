@@ -714,3 +714,29 @@ body {
     justify-content: space-between;
     align-items: center;
 }
+
+/* Custom Modal Styles */
+.modal-content {
+    border-radius: 0.5rem;
+    border: none;
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Style for form-control with rounded corners */
+.form-control {
+    border-radius: 0.375rem; /* Bootstrap's default is a bit smaller */
+}
+
+/* Ensure floating label inputs have the right height */
+.form-floating > .form-control {
+    height: calc(3.5rem + 2px);
+    line-height: 1.25;
+}
+
+.form-floating > label {
+    padding: 1rem 0.75rem;
+}

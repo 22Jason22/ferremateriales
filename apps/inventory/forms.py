@@ -4,6 +4,14 @@ from .models import Product
 
 class ProductForm(forms.ModelForm):
     """zzz"""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({
+                'class': 'form-control',
+                'placeholder': field.label
+            })
+
     class Meta:
         """zzz"""
         model = Product

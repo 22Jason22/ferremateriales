@@ -240,4 +240,84 @@ urlpatterns = [
 ]
 ```
 
-Siguiendo estos pasos, puedes replicar el comportamiento de los modales dinámicos en cualquier aplicación de tu proyecto de forma consistente.
+---
+
+## 5. El Rol de las Plantillas de Página Completa (ej. `editar_objeto.html`)
+
+Podrías preguntarte por qué mantenemos una plantilla como `editar_objeto.html` si el formulario ahora se carga en un modal. Es una excelente pregunta y la respuesta se basa en crear una aplicación robusta.
+
+*   **Acceso Directo y Accesibilidad:** La plantilla de página completa (`editar_objeto.html`) se utiliza cuando un usuario navega directamente a la URL de edición (ej. `/objetos/1/editar/`). Esto permite enlazar directamente a una página de edición y asegura que la funcionalidad siga disponible incluso si el JavaScript del usuario falla.
+
+*   **Separación de Intereses:**
+    *   **`_formulario_objeto.html` (Parcial):** Solo contiene el formulario. Es un fragmento reutilizable diseñado para ser inyectado en cualquier lugar, como un modal.
+    *   **`editar_objeto.html` (Completa):** Es la página completa que hereda de `base.html`. Su única responsabilidad es presentar el formulario en el contexto de una página entera. A menudo, esta plantilla simplemente incluye a la plantilla parcial.
+
+Este enfoque, aunque requiere un archivo extra, nos da dos formas de acceder a la misma funcionalidad (modal y página completa) casi sin duplicar código, lo cual es una práctica recomendada.
+
+---
+
+## 6. Modificar los Campos de un Formulario
+
+El contenido de los formularios (los campos, sus etiquetas, tipos, etc.) se define en el archivo `forms.py` de la aplicación correspondiente.
+
+Por ejemplo, para modificar el formulario de productos, debes editar `apps/inventory/forms.py`.
+
+```python
+# apps/inventory/forms.py
+
+from django import forms
+from .models import Product
+
+class ProductForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Este bucle añade clases de CSS para los estilos de Bootstrap
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({
+                'class': 'form-control',
+                'placeholder': field.label
+            })
+
+    class Meta:
+        model = Product
+        # Para añadir o quitar campos, modifica esta lista
+        fields = [
+            'name',
+            'category',
+            'price',
+            'description',
+            'current_stock',
+            'image'
+            # Añade aquí un nuevo campo del modelo
+        ]
+```
+
+Para cambiar los campos, simplemente añade o elimina nombres de campos del modelo en la lista `fields` de la clase `Meta`. Si necesitas cambiar la etiqueta de un campo, puedes hacerlo en el modelo de Django (`models.py`) o directamente en la clase del formulario.
+
+La plantilla (`_formulario_objeto.html`) no necesita cambios, ya que itera sobre los campos que le pasa el formulario con `{% for field in form %}`.
+
+---
+
+## 7. Archivos Involucrados
+
+A continuación se listan los archivos clave para el funcionamiento de un sistema de modales en una app genérica llamada `nombre_app`.
+
+*   **Vistas (`apps/nombre_app/views.py`):**
+    *   Contiene la lógica para mostrar la lista de objetos y para manejar las peticiones de creación/edición, diferenciando entre peticiones normales y de modal (`?modal=1`).
+
+*   **URLs (`apps/nombre_app/urls.py`):**
+    *   Define las rutas para las vistas de listar, crear y editar.
+
+*   **Formularios (`apps/nombre_app/forms.py`):**
+    *   Define los campos que se mostrarán en los formularios de creación y edición.
+
+*   **Plantillas (`templates/nombre_app/`):**
+    *   `lista_objetos.html`: Muestra la lista. Contiene los botones que abren los modales, los contenedores vacíos de los modales y el código JavaScript que los gestiona.
+    *   `_formulario_objeto.html`: Plantilla parcial solo con el código del formulario. Es reutilizable e inyectada por JavaScript en los modales.
+    *   `crear_objeto.html` / `editar_objeto.html`: Plantillas de página completa para el acceso directo sin modales.
+
+*   **Estilos (`static/css/adap.css`):**
+    *   Contiene los estilos personalizados para mejorar la apariencia de los modales y sus campos.
+
+*   **JavaScript (en `lista_objetos.html`):**
+    *   El código `<script>` dentro de la plantilla de la lista es el responsable de la interactividad: detecta el clic en los botones, pide el contenido del formulario al servidor con `fetch` y lo inyecta en el modal.
