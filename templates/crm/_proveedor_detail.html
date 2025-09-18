@@ -1,0 +1,100 @@
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Información del Proveedor</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <strong>Razón Social:</strong><br>
+                        {{ supplier.razon_social|default:"No especificado" }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>RUC:</strong><br>
+                        {{ supplier.ruc|default:"No especificado" }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Nombre de Contacto:</strong><br>
+                        {{ supplier.contacto_nombre|default:"No especificado" }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Email de Contacto:</strong><br>
+                        {% if supplier.contacto_email %}
+                            <a href="mailto:{{ supplier.contacto_email }}">{{ supplier.contacto_email }}</a>
+                        {% else %}
+                            No especificado
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Teléfono:</strong><br>
+                        {{ supplier.telefono|default:"No especificado" }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Teléfono de Contacto:</strong><br>
+                        {{ supplier.contacto_telefono|default:"No especificado" }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Rubro:</strong><br>
+                        {{ supplier.get_rubro_display|default:"No especificado" }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Estado:</strong><br>
+                        {% if supplier.estado == 'activo' %}
+                            <span class="badge bg-success">Activo</span>
+                        {% elif supplier.estado == 'suspendido' %}
+                            <span class="badge bg-warning">Suspendido</span>
+                        {% elif supplier.estado == 'inactivo' %}
+                            <span class="badge bg-secondary">Inactivo</span>
+                        {% else %}
+                            <span class="badge bg-light text-dark">{{ supplier.get_estado_display }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Plazo de Pago:</strong><br>
+                        {{ supplier.get_plazo_pago_display|default:"No especificado" }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Certificado:</strong><br>
+                        {% if supplier.certificado %}
+                            <span class="badge bg-success">Sí</span>
+                        {% else %}
+                            <span class="badge bg-secondary">No</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-12">
+                        <strong>Dirección:</strong><br>
+                        {{ supplier.direccion|default:"No especificada"|linebreaks }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Fecha de Creación:</strong><br>
+                        {{ supplier.created_at|date:"d/m/Y H:i" }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Última Actualización:</strong><br>
+                        {{ supplier.updated_at|date:"d/m/Y H:i" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if not modal %}
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Acciones Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'crm:historial_proveedor' supplier.id %}" class="btn btn-info">
+                        <i class="fas fa-history me-1"></i> Ver Historial
+                    </a>
+                    <button class="btn btn-success" disabled>
+                        <i class="fas fa-plus me-1"></i> Nueva Orden
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>

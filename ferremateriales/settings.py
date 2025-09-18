@@ -24,6 +24,9 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'web']
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
+LOGIN_REDIRECT_URL = '/catalogo/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -43,6 +46,7 @@ INSTALLED_APPS = [
     'apps.sales',
     'apps.purchases',
     'apps.invoicing',
+    'apps.car',
 ]
 
 MIDDLEWARE = [
@@ -135,6 +139,10 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Login and logout redirects
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'login'
 
 # Media files (uploads)
 MEDIA_URL = '/media/'

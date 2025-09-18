@@ -1,15 +1,7 @@
 from django import forms
-from .models import Customer
+from .models import Customer, Supplier
 
 class CustomerForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field_name, field in self.fields.items():
-            field.widget.attrs.update({
-                'class': 'form-control',
-                'placeholder': field.label
-            })
-
     class Meta:
         model = Customer
         fields = [
@@ -24,4 +16,24 @@ class CustomerForm(forms.ModelForm):
         ]
         widgets = {
             'address': forms.Textarea(attrs={'rows': 2}),
+        }
+
+class SupplierForm(forms.ModelForm):
+    class Meta:
+        model = Supplier
+        fields = [
+            'razon_social',
+            'ruc',
+            'rubro',
+            'telefono',
+            'contacto_nombre',
+            'contacto_email',
+            'contacto_telefono',
+            'direccion',
+            'plazo_pago',
+            'estado',
+            'certificado',
+        ]
+        widgets = {
+            'direccion': forms.Textarea(attrs={'rows': 2}),
         }

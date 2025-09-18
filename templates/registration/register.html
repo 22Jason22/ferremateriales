@@ -1,0 +1,45 @@
+{% extends "base_auth.html" %}
+
+{% block title %}Registro de Usuario{% endblock %}
+
+{% block content %}
+<div class="auth-header">
+    <h2><i class="fas fa-user-plus"></i> Registro de Usuario</h2>
+    <p>Crea tu cuenta para acceder al sistema</p>
+</div>
+
+{% if messages %}
+<div class="alert-container">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<form method="post" novalidate>
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="{{ form.username.id_for_label }}">Usuario</label>
+        {{ form.username }}
+    </div>
+    <div class="form-group">
+        <label for="{{ form.email.id_for_label }}">Correo Electrónico</label>
+        {{ form.email }}
+    </div>
+    <div class="form-group">
+        <label for="{{ form.password1.id_for_label }}">Contraseña</label>
+        {{ form.password1 }}
+    </div>
+    <div class="form-group">
+        <label for="{{ form.password2.id_for_label }}">Confirmar Contraseña</label>
+        {{ form.password2 }}
+    </div>
+    <button type="submit" class="btn btn-primary">Registrar</button>
+</form>
+<div class="auth-links">
+    <p>¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión aquí</a></p>
+</div>
+{% endblock %}

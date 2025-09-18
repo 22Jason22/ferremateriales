@@ -1,0 +1,196 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+
+{% block title %}{% translate "Log in" %} | {% translate "Nexus Admin" %}{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            /* background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); */
+            background-image: url({% static "admin/img/salto.jpg" %});
+            background-size: cover;
+            background-position: center;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .login-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px 0 #273d47a4;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+        }
+        .login-container h1 {
+            color: #273d47; /* Lighter text for contrast on dark background */
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            font-weight: 600;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #273d47; /* Light blue for labels */
+            font-weight: bold;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="password"] {
+            width: calc(100% - 20px);
+            padding: 12px 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #273d47; 
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+        .form-group input[type="text"]:focus,
+        .form-group input[type="password"]:focus {
+            color: #273d47;  /* Lighter blue on focus */
+            box-shadow: 0 0 0 0.2rem rgba(144, 202, 249, 0.25);
+            outline: none;
+        }
+        .form-group input::placeholder {
+            color: #273d479a;
+            font-weight: bold;
+        }
+        .submit-button {
+            width: 100%;
+            padding: 12px;
+            background: #3F51B5; /* Deep Indigo Blue */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: 600;
+        }
+        .submit-button:hover {
+            background-color: #303F9F; /* Darker Indigo on hover */
+        }
+        .forgot-password {
+            margin-top: 20px;
+            font-size: 0.9em;
+            display: flex;
+            font-weight: bold;
+        }
+        .forgot-password a {
+            color: #374d57ff; /* Light blue for link */
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .forgot-password a:hover {
+            color: #273d47; /* Lighter blue on hover */
+        }
+        .errorlist {
+            list-style: none;
+            padding: 0;
+            margin: -15px 0 15px 0;
+            color: #FFCDD2; /* Light red for errors */
+            font-size: 0.9em;
+            text-align: left;
+        }
+        .errorlist li {
+            margin-bottom: 5px;
+        }
+        .indigo-text {
+            color: #303F9F; /* Deep Indigo Blue for specific text */
+        }
+        .backdrop-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Efecto de desenfoque aplicado a este div,
+            que está sobre la imagen de fondo del body */
+            backdrop-filter: blur(3px); /* Ajusta el valor según tu preferencia */
+            -webkit-backdrop-filter: blur(3px);
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+<div class="backdrop-container"></div>
+<div class="login-container">
+    <h1>{% translate "Welcome to Nexus Admin" %}</h1>
+    <form action="{{ app_path }}" method="post" id="login-form">
+        {% csrf_token %}
+        {% if form.errors %}
+            <ul class="errorlist">
+                {% for field in form %}
+                    {% if field.errors %}{{ field.errors }}{% endif %}
+                {% endfor %}
+                {% if form.non_field_errors %}{{ form.non_field_errors }}{% endif %}
+            </ul>
+        {% endif %}
+        <div class="form-group">
+            <label for="id_username"><i class="bi bi-person-fill"></i> {% translate "Username" %}:</label>
+            <input type="text" name="username" id="id_username" placeholder="{% translate "Enter your username" %}" autofocus required>
+        </div>
+        <div class="form-group">
+            <label for="id_password"><i class="bi bi-lock-fill"></i> {% translate "Password" %}:</label>
+            <input type="password" name="password" id="id_password" placeholder="{% translate "Enter your password" %}" required>
+        </div>
+        <input type="submit" value="{% translate "Log in" %}" class="submit-button">
+        <input type="hidden" name="next" value="{{ next }}">
+    </form>
+    <div class="forgot-password">
+        <a href="{% url 'password_reset' %}">{% translate "Forgot password?" %}</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block sidebar %}{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block nav-sidebar %}{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content_title %}{% endblock %}
+
+{% block object-tools %}{% endblock %}
+
+{% comment %} {% block pagination %}{% endblock %} {% endcomment %}
+
+{% comment %} {% block filters %}{% endblock %} {% endcomment %}
+
+{% block search %}{% endblock %}
+
+{% block date_hierarchy %}{% endblock %}
+
+{% block result_list %}{% endblock %}
+
+{% block form_top %}{% endblock %}
+
+{% block after_field_sets %}{% endblock %}
+
+{% block submit_buttons_bottom %}{% endblock %}
+
+{% block content_bottom %}{% endblock %}
+
+{% block extrajs %}{% endblock %}

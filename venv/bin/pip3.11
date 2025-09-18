@@ -1,4 +1,4 @@
-#!/home/todoriko/Descargas/coso/ferremateriales-main/venv/bin/python3
+#!/home/todoriko/Descargas/ferremateriales-main(1)/ferremateriales-main/venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys

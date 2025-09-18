@@ -1,0 +1,23 @@
+{% extends "admin/base.html" %}
+{% load static i18n %}
+
+{% block branding %}
+Superadministracion de Ferremateriales
+{% endblock %}
+
+{% block extrahead %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/base.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/admin_navbar.css' %}">
+    <link rel="stylesheet" href="{% static 'admin/css/index_admin.css' %}">
+    <script type="text/javascript" src="{% url 'javascript_catalog' %}"></script>
+    {{ admin_app_list|json_script:"admin_app_list_json" }}
+    <script src="{% static 'admin/js/custom_admin.js' %}" defer></script>
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} language-{{ LANGUAGE_CODE|slice:":2" }}{% endblock %}
+
+{# Reemplazamos los userlinks por defecto con nuestro contenedor #}
+{% block userlinks %}
+    <div id="custom-navbar-container" style="display: flex; align-items: center;"></div>
+{% endblock %}

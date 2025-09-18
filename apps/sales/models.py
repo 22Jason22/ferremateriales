@@ -181,6 +181,19 @@ class Order(models.Model):
     def __str__(self):
         return f"{self.order_number} - {self.customer.name}"
 
+    def save(self, *args, **kwargs):
+        """
+        Override save method to update customer's last_purchase date.
+        """
+        super().save(*args, **kwargs)
+        # Update customer's last_purchase with the order date
+        if self.customer:
+            # Convert date to datetime for last_purchase field
+            order_datetime = timezone.datetime.combine(self.date, timezone.datetime.min.time())
+            order_datetime = timezone.make_aware(order_datetime)
+            self.customer.last_purchase = order_datetime
+            self.customer.save(update_fields=['last_purchase'])
+
     def get_absolute_url(self):
         """
         Return the URL to access a detail record for this order.

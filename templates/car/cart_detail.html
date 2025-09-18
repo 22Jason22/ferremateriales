@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Carrito de Compras - Ferromateriales{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Carrito de Compras</h1>
+    
+    {% if items %}
+        <div class="row">
+            <div class="col-md-8" id="cart-items-container">
+                {% for item in items %}
+                <div class="card mb-3" id="cart-item-{{ item.id }}">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-2">
+                                {% if item.product.image %}
+                                    <img src="{{ item.product.image.url }}" class="img-fluid" alt="{{ item.product.name }}">
+                                {% else %}
+                                    <img src="{% static 'images/no-image.png' %}" class="img-fluid" alt="Sin imagen">
+                                {% endif %}
+                            </div>
+                            <div class="col-md-5">
+                                <h5>{{ item.product.name }}</h5>
+                                <p class="text-muted">{{ item.product.category.name }}</p>
+                                <p>Precio unitario: ${{ item.product.price|floatformat:2 }}</p>
+                            </div>
+                            <div class="col-md-3">
+                                <form method="post" action="{% url 'cart:update_cart_item' item.id %}" class="update-cart-form">
+                                    {% csrf_token %}
+                                    <div class="input-group">
+                                        <input type="number" name="quantity" value="{{ item.quantity }}" min="0" class="form-control quantity-input" data-item-id="{{ item.id }}">
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <p class="mb-1">Total: <span id="item-total-{{ item.id }}">${{ item.get_total_price|floatformat:2 }}</span></p>
+                                <a href="{% url 'cart:remove_from_cart' item.id %}" class="btn btn-danger btn-sm">Eliminar</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Resumen del Pedido</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Total de productos: <span id="cart-total-items">{{ total_items }}</span></p>
+                        <p class="h4">Total: <span id="cart-total-price">${{ total_price|floatformat:2 }}</span></p>
+                        <a href="https://wa.me/584142091914?text={{ whatsapp_message }}" class="btn btn-success btn-lg w-100 mb-2" target="_blank">
+                            <i class="fab fa-whatsapp"></i> Contactar por WhatsApp
+                        </a>
+                        <a href="{% url 'catalog' %}" class="btn btn-primary w-100">
+                            <i class="fas fa-shopping-cart"></i> Seguir Comprando
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center" id="empty-cart-message">
+            <h3>Tu carrito está vacío</h3>
+            <p>Agrega algunos productos desde el <a href="{% url 'catalog' %}">catálogo</a>.</p>
+        </div>
+    {% endif %}
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const quantityInputs = document.querySelectorAll('.quantity-input');
+
+    quantityInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const itemId = this.dataset.itemId;
+            let quantity = parseInt(this.value);
+            const form = this.closest('form');
+            const url = form.action;
+            const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            if (quantity < 0) {
+                quantity = 0;
+                this.value = 0;
+            }
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: `quantity=${quantity}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.item_removed) {
+                        const itemCard = document.getElementById(`cart-item-${data.item_id}`);
+                        if (itemCard) {
+                            itemCard.remove();
+                        }
+                    } else {
+                        const itemTotalEl = document.getElementById(`item-total-${data.item_id}`);
+                        if (itemTotalEl) {
+                            itemTotalEl.textContent = '$' + data.item_total.toFixed(2);
+                        }
+                    }
+
+                    const cartTotalEl = document.getElementById('cart-total-price');
+                    if (cartTotalEl) {
+                        cartTotalEl.textContent = '$' + data.cart_total.toFixed(2);
+                    }
+
+                    const totalItemsEl = document.getElementById('cart-total-items');
+                    if (totalItemsEl) {
+                        totalItemsEl.textContent = data.total_items;
+                    }
+
+                    if (data.total_items === 0) {
+                        const cartContainer = document.querySelector('.row');
+                        if (cartContainer) {
+                            cartContainer.innerHTML = `
+                                <div class="text-center" id="empty-cart-message">
+                                    <h3>Tu carrito está vacío</h3>
+                                    <p>Agrega algunos productos desde el <a href="{% url 'catalog' %}">catálogo</a>.</p>
+                                </div>`;
+                        }
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

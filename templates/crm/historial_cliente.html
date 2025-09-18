@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+{% block title %}Historial de {{ customer.name }} - Ferromateriales{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-history me-2"></i> Historial de {{ customer.name }}</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'crm:clientes' %}">Clientes</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'crm:ver_cliente' customer.id %}">{{ customer.name }}</a></li>
+                    <li class="breadcrumb-item active">Historial</li>
+                </ol>
+            </nav>
+        </div>
+        <a href="{% url 'crm:ver_cliente' customer.id %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Volver al Cliente
+        </a>
+    </div>
+
+    <!-- Información del cliente -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Información del Cliente</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Nombre:</strong> {{ customer.name }}</p>
+                    <p><strong>RUC:</strong> {{ customer.tax_id|default:"No especificado" }}</p>
+                    <p><strong>Tipo:</strong> {{ customer.get_client_type_display }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Contacto:</strong> {{ customer.contact_name|default:"No especificado" }}</p>
+                    <p><strong>Email:</strong> {{ customer.email|default:"No especificado" }}</p>
+                    <p><strong>Teléfono:</strong> {{ customer.phone|default:"No especificado" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Historial de Ventas -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-shopping-cart me-2"></i> Órdenes de Venta</h5>
+        </div>
+        <div class="card-body">
+            {% if orders %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>N° Orden</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                                <th>Total</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr>
+                                <td>{{ order.order_number }}</td>
+                                <td>{{ order.date|date:"d/m/Y" }}</td>
+                                <td>
+                                    {% if order.status == 'pending' %}
+                                        <span class="badge bg-warning">Pendiente</span>
+                                    {% elif order.status == 'confirmed' %}
+                                        <span class="badge bg-info">Confirmada</span>
+                                    {% elif order.status == 'shipped' %}
+                                        <span class="badge bg-primary">Enviada</span>
+                                    {% elif order.status == 'delivered' %}
+                                        <span class="badge bg-success">Entregada</span>
+                                    {% elif order.status == 'cancelled' %}
+                                        <span class="badge bg-danger">Cancelada</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ order.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>${{ order.total_amount|floatformat:2 }}</td>
+                                <td>
+                                    <a href="#" class="btn btn-sm btn-outline-primary" title="Ver detalle">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">No hay órdenes de venta registradas para este cliente.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Historial de Cotizaciones -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-file-invoice me-2"></i> Cotizaciones</h5>
+        </div>
+        <div class="card-body">
+            {% if quotes %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>N° Cotización</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                                <th>Total</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for quote in quotes %}
+                            <tr>
+                                <td>{{ quote.quote_number }}</td>
+                                <td>{{ quote.date|date:"d/m/Y" }}</td>
+                                <td>
+                                    {% if quote.status == 'draft' %}
+                                        <span class="badge bg-secondary">Borrador</span>
+                                    {% elif quote.status == 'sent' %}
+                                        <span class="badge bg-info">Enviada</span>
+                                    {% elif quote.status == 'approved' %}
+                                        <span class="badge bg-success">Aprobada</span>
+                                    {% elif quote.status == 'rejected' %}
+                                        <span class="badge bg-danger">Rechazada</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">{{ quote.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>${{ quote.total_amount|floatformat:2 }}</td>
+                                <td>
+                                    <a href="#" class="btn btn-sm btn-outline-primary" title="Ver detalle">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">No hay cotizaciones registradas para este cliente.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Historial de Facturas -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-receipt me-2"></i> Facturas</h5>
+        </div>
+        <div class="card-body">
+            {% if invoices %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>N° Factura</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                                <th>Total</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for invoice in invoices %}
+                        <tr>
+                            <td>{{ invoice.invoice_number }}</td>
+                            <td>{{ invoice.date_issued|date:"d/m/Y" }}</td>
+                            <td>
+                                {% if invoice.status == 0 %}
+                                    <span class="badge bg-secondary">Borrador</span>
+                                {% elif invoice.status == 1 %}
+                                    <span class="badge bg-info">Enviada</span>
+                                {% elif invoice.status == 2 %}
+                                    <span class="badge bg-success">Pagada</span>
+                                {% elif invoice.status == 3 %}
+                                    <span class="badge bg-danger">Vencida</span>
+                                {% else %}
+                                    <span class="badge bg-light text-dark">{{ invoice.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>${{ invoice.total_amount|floatformat:2 }}</td>
+                            <td>
+                                <a href="#" class="btn btn-sm btn-outline-primary" title="Ver detalle">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">No hay facturas registradas para este cliente.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Estadísticas rápidas -->
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body text-center">
+                    <h4>{{ orders|length }}</h4>
+                    <p class="mb-0">Órdenes Totales</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body text-center">
+                    <h4>{{ quotes|length }}</h4>
+                    <p class="mb-0">Cotizaciones</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body text-center">
+                    <h4>{{ invoices|length }}</h4>
+                    <p class="mb-0">Facturas</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body text-center">
+                    <h4>${{ total_amount|floatformat:2 }}</h4>
+                    <p class="mb-0">Total Vendido</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

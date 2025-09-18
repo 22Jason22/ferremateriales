@@ -97,7 +97,10 @@
                     </li>
                     <li class="dropdown-divider"></li>
                     <li>
-                        <a class="dropdown-item logout" href="#">
+                        <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
+                            {% csrf_token %}
+                        </form>
+                        <a class="dropdown-item logout" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                             <i class="fas fa-sign-out-alt"></i> Cerrar sesión
                         </a>
                     </li>

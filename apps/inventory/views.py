@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django.core.paginator import Paginator
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 from rest_framework import viewsets
 
@@ -19,6 +20,8 @@ from .forms import ProductForm
 
 def product_list(request):
     """Obtener parámetros de filtro"""
+    if request.user.role == 'cliente':
+        return redirect('catalog')
     search_query = request.GET.get('search', '')
     category_id = request.GET.get('category', '')
     price_min = request.GET.get('price_min')
@@ -142,8 +145,12 @@ class StockMovementViewSet(viewsets.ModelViewSet):
     serializer_class = StockMovementSerializer
 
 
+@login_required
 def catalog(request):
     """Vista del catálogo de productos para clientes finales"""
+    if request.user.role not in ['cliente', 'admin']:
+        return redirect('inventory:product_list')
+
     search_query = request.GET.get('search', '')
     category_id = request.GET.get('category', '')
     price_min = request.GET.get('price_min')

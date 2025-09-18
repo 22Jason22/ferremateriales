@@ -8,18 +8,24 @@ from .managers import CustomUserManager
 
 
 class CustomUser(AbstractUser):
-    """Custom User Model that uses email as the username field"""
+    """Custom User Model"""
 
-    # Remove default first_name, and last_name fields
-    first_name = None
-    last_name = None
+    # Override username to set default
+    username = models.CharField(max_length=150, unique=True, default='defaultuser')
 
-    # Use email as the unique identifier
+    # Use email as additional field
     email = models.EmailField(_("email address"), unique=True)
 
-    username = None # Remove username field as email is used for authentication
-    USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = []
+    ROLE_CHOICES = [
+        ('cliente', 'Cliente'),
+        ('trabajador', 'Trabajador'),
+        ('admin', 'Administrador'),
+        ('superadmin', 'Superadministrador')
+    ]
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='cliente')
+
+    USERNAME_FIELD = "username"
+    REQUIRED_FIELDS = ["email"]
 
     objects = CustomUserManager()
 

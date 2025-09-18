@@ -582,7 +582,9 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary-custom">Agregar al Carrito</button>
+                                    <button type="button" class="btn btn-primary-custom add-to-cart-btn" data-product-id="{{ product.pk }}">
+                                        Agregar al Carrito
+                                    </button>
             </div>
         </div>
     </div>
@@ -616,6 +618,36 @@ document.addEventListener('DOMContentLoaded', function() {
         url.searchParams.set('sort', sortValue);
         window.location.href = url.toString();
     };
+
+    // Agregar al carrito con AJAX
+    const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+    addToCartButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.getAttribute('data-product-id');
+            fetch("{% url 'cart:add_to_cart' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: new URLSearchParams({
+                    'product_id': productId,
+                    'quantity': 1
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Actualizar contador del carrito en navbar
+                    const cartItemCount = document.getElementById('cartItemCount');
+                    cartItemCount.textContent = data.cartItemCount;
+                    alert('Producto agregado al carrito');
+                } else {
+                    alert('Error al agregar al carrito');
+                }
+            });
+        });
+    });
 });
 </script>
 {% endblock %}

@@ -33,7 +33,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV /home/todoriko/Descargas/coso/ferremateriales-main/venv
+set -gx VIRTUAL_ENV '/home/todoriko/Descargas/ferremateriales-main(1)/ferremateriales-main/venv'
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/"bin $PATH

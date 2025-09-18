@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Carrito de Compras - Ferremateriales{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2>Carrito de compras</h2>
+    {% if cart_items %}
+    <table class="table table-bordered mt-4">
+        <thead>
+            <tr>
+                <th>Artículo</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
+                <th>Subtotal</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart_items %}
+            <tr data-product-id="{{ item.product.id }}">
+                <td>
+                    {% if item.product.image %}
+                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width: 50px; height: 50px; object-fit: contain; margin-right: 10px;">
+                    {% endif %}
+                    {{ item.product.name }}
+                </td>
+                <td>${{ item.product.price|floatformat:2 }}</td>
+                <td>
+                    <input type="number" class="form-control quantity-input" value="{{ item.quantity }}" min="1" style="width: 80px;">
+                </td>
+                <td>${{ item.subtotal|floatformat:2 }}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary update-quantity-btn">Actualizar</button>
+                    <button class="btn btn-sm btn-danger remove-item-btn">Quitar</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="d-flex justify-content-between align-items-center">
+        <h4>Subtotal: ${{ total|floatformat:2 }}</h4>
+        <a href="#" class="btn btn-success btn-lg">Ir a pagar</a>
+    </div>
+    {% else %}
+    <p>Tu carrito está vacío.</p>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const updateButtons = document.querySelectorAll('.update-quantity-btn');
+    const removeButtons = document.querySelectorAll('.remove-item-btn');
+
+    updateButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const row = this.closest('tr');
+            const productId = row.getAttribute('data-product-id');
+            const quantity = row.querySelector('.quantity-input').value;
+
+            fetch("{% url 'cart:update_cart' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: new URLSearchParams({
+                    'product_id': productId,
+                    'quantity': quantity
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error al actualizar la cantidad');
+                }
+            });
+        });
+    });
+
+    removeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const row = this.closest('tr');
+            const productId = row.getAttribute('data-product-id');
+
+            fetch("{% url 'cart:remove_from_cart' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: new URLSearchParams({
+                    'product_id': productId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error al quitar el producto');
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

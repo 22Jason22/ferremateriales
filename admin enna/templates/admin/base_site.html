@@ -1,0 +1,15 @@
+{% extends "admin/base.html" %}
+{% load static i18n %}
+
+{% block extrahead %}
+    {{ block.super }}
+    {% comment %} <link rel="stylesheet" type="text/css" href="{% static 'admin/css/hide_breadcrumbs.css' %}"> {% endcomment %}
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/admin_navbar.css' %}">
+    <link rel="stylesheet" href="{% static 'admin/css/index_admin.css' %}">
+    <script type="text/javascript" src="{% url 'javascript_catalog' %}"></script>
+    <script src="{% static 'admin/js/custom_admin.js' %}" defer></script>
+    {{ admin_app_list|json_script:"admin_app_list_json" }}
+    {{ user.username|json_script:"username_json" }}
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} language-{{ LANGUAGE_CODE|slice:":2" }}{% endblock %}

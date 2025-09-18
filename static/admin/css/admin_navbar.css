@@ -1,0 +1,302 @@
+/* admin_navbar.css */
+
+/* Hide the apps and user dropdowns on the login page */
+.login-page .apps-dropdown-container,
+.login-page .user-dropdown-container {
+    display: none;
+}
+
+/* Hide the navigation sidebar globally */
+#nav-sidebar {
+    display: none !important;
+}
+.login-page .apps-dropdown-container,
+.login-page .user-dropdown-container {
+    display: none;
+}
+
+/* Hide original Django admin elements that are replaced by custom ones */
+#user-tools strong {
+    display: none !important;
+}
+
+#user-tools strong,
+#user-tools p {
+    display: none !important;
+}
+
+#user-tools a[href="/"],
+#user-tools a[href*="/admin/doc/"],
+
+
+#logout-form {
+    display: none !important;
+}
+
+/* General Dropdown Styles */
+.dropdown-container {
+    position: relative;
+    display: inline-block;
+    margin-left: 10px;
+    /* Spacing between dropdowns */
+}
+
+.dropdown-button {
+    background-color: var(--header-bg);
+    color: var(--header-color);
+    padding: 8px 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: var(--body-bg);
+    /* Changed to body background */
+    min-width: max-content;
+    /* Adjust width to content */
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    flex-direction: column;
+    /* Vertical dropdown */
+    border: 1px solid var(--border-color);
+    /* Added border for definition */
+    left: 0;
+    /* Align to the left */
+    text-align: left;
+    /* Align text content to the left */
+    align-items: flex-start;
+    /* Align flex items to the start (left) */
+}
+
+.dropdown-menu.show {
+    display: flex;
+}
+
+.dropdown-menu a {
+    color: var(--body-fg);
+    /* Use foreground color for better theme compatibility */
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    white-space: nowrap;
+    /* Prevent text wrapping */
+}
+
+.dropdown-menu a:hover {
+    background-color: var(--primary-color);
+    /* Kept primary color for hover */
+    color: var(--button-fg);
+    /* Changed to button foreground for better contrast */
+}
+
+/* Apps Dropdown Specific Styles */
+.apps-dropdown .dropdown-menu {
+    left: 0;
+    /* Align to the left */
+    right: auto;
+    /* Override default right alignment */
+}
+
+.app-item {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.app-item:last-child {
+    border-bottom: none;
+}
+
+.app-name-link {
+    padding: 12px 16px;
+    display: block;
+    font-weight: bold;
+    color: var(--body-fg);
+    /* Use foreground color for better theme compatibility */
+    text-decoration: none;
+    white-space: nowrap;
+    /* Prevent text wrapping */
+}
+
+.app-name-link:hover {
+    background-color: var(--primary-color);
+    color: var(--button-fg);
+}
+
+.model-accordion {
+    display: none;
+    /* Hidden by default */
+    flex-direction: column;
+    /* Vertical accordion */
+    padding-left: 15px;
+    /* Indent models */
+    align-items: flex-start;
+    /* Left align model links */
+    margin-left: 0;
+    /* Remove auto margin */
+}
+
+.model-accordion.show {
+    display: flex;
+}
+
+.model-link {
+    color: var(--body-fg);
+    /* Use foreground color for better theme compatibility */
+    padding: 8px 16px;
+    text-decoration: none;
+    display: block;
+    white-space: nowrap;
+    /* Prevent text wrapping */
+}
+
+.model-link:hover {
+    background-color: var(--primary-color);
+    color: var(--button-fg);
+}
+
+/* User Dropdown Specific Styles */
+.user-dropdown .dropdown-menu {
+    left: 0;
+    /* Align to the left */
+    right: auto;
+    /* Override default right alignment */
+}
+
+/* Language Selector Styles */
+.language-selector {
+    margin-left: 10px;
+}
+
+.language-selector select {
+    background-color: var(--header-bg);
+    color: var(--header-color);
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+    height: 38px;
+    /* Match button height */
+}
+
+.language-selector select:focus {
+    outline: none;
+}
+
+/* Theme Toggle Button Styles */
+.theme-toggle {
+    /* background-color: var(--header-bg);
+    color: var(--header-color); */
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-toggle svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    fill: currentColor;
+}
+
+/* light_mode_fixes.css */
+/* Estilos específicos para corregir la visibilidad del texto en submenús del modo claro */
+
+/* Asegurar que el texto de los submenús sea visible en modo claro */
+html[data-theme="light"] .dropdown-menu a,
+html[data-theme="light"] .dropdown-menu .app-name-link,
+html[data-theme="light"] .dropdown-menu .model-link,
+html[data-theme="light"] .dropdown-menu .model-sub-menu a {
+    color: #333333 !important;
+    font-weight: 500;
+}
+
+/* Hover states para mejor visibilidad */
+html[data-theme="light"] .dropdown-menu a:hover,
+html[data-theme="light"] .dropdown-menu .app-name-link:hover,
+html[data-theme="light"] .dropdown-menu .model-link:hover,
+html[data-theme="light"] .dropdown-menu .model-sub-menu a:hover {
+    background-color: #f8f9fa !important;
+    color: #000000 !important;
+}
+
+/* Asegurar fondo claro para submenús */
+html[data-theme="light"] .dropdown-menu {
+    background-color: #ffffff !important;
+    border: 1px solid #dee2e6 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Asegurar que los enlaces tengan buen contraste */
+html[data-theme="light"] .dropdown-menu a:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* Estilos adicionales para mejorar la legibilidad */
+html[data-theme="light"] .dropdown-menu .app-item {
+    border-bottom: 1px solid #e9ecef;
+}
+
+html[data-theme="light"] .dropdown-menu .app-item:last-child {
+    border-bottom: none;
+}
+
+/* Asegurar que los modelos tengan buen contraste */
+html[data-theme="light"] .model-accordion {
+    background-color: #ffffff;
+}
+
+/* light_mode_fixes.css */
+/* Estilos específicos para corregir la visibilidad del texto en submenús del modo claro */
+
+/* Asegurar que el texto de los submenús sea visible en modo claro */
+html[data-theme="light"] .dropdown-menu a,
+html[data-theme="light"] .dropdown-menu .app-name-link,
+html[data-theme="light"] .dropdown-menu .model-link,
+html[data-theme="light"] .dropdown-menu .model-sub-menu a {
+    color: #333333 !important;
+    font-weight: 500;
+}
+
+/* Hover states para mejor visibilidad */
+html[data-theme="light"] .dropdown-menu a:hover,
+html[data-theme="light"] .dropdown-menu .app-name-link:hover,
+html[data-theme="light"] .dropdown-menu .model-link:hover,
+html[data-theme="light"] .dropdown-menu .model-sub-menu a:hover {
+    background-color: #f8f9fa !important;
+    color: #000000 !important;
+}
+
+/* Asegurar fondo claro para submenús */
+html[data-theme="light"] .dropdown-menu {
+    background-color: #ffffff !important;
+    border: 1px solid #dee2e6 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Asegurar que los enlaces tengan buen contraste */
+html[data-theme="light"] .dropdown-menu a:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* Estilos adicionales para mejorar la legibilidad */
+html[data-theme="light"] .dropdown-menu .app-item {
+    border-bottom: 1px solid #e9ecef;
+}
+
+html[data-theme="light"] .dropdown-menu .app-item:last-child {
+    border-bottom: none;
+}
+
+/* Asegurar que los modelos tengan buen contraste */
+html[data-theme="light"] .model-accordion {
+    background-color: #ffffff;
+}

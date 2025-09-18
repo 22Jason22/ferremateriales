@@ -1,0 +1,1 @@
+ajusta aqui ferremateriales-main/apps/car requiero que en el catalago en el cual ya tenemos la opcion de "agregar al carrito" vamos a crear ese carrito, con todo lo necesario para que funcione y se vayan agregando ahi los productos seleccionados mostrandolos asi

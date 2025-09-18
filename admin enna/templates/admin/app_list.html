@@ -1,0 +1,186 @@
+{% load static i18n %}
+
+{% block extrastyle %}
+<link rel="stylesheet" href="{% static 'admin/css/index_admin.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<style>
+    /* Estilos generales del módulo */
+    .module {
+        {% comment %} border: 1px solid #e5e7eb; /* gray-200 */ {% endcomment %}
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        margin-bottom: 25px;
+        overflow: hidden;
+    }
+    
+    /* Estilo del título de la aplicación */
+    .module caption {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1f2937; /* gray-800 */
+        padding: 15px 20px;
+        background-color: #3b82f6; /* gray-100 */
+        text-align: left;
+    }
+    .module caption a {
+        color: inherit; /* Hereda el color del padre */
+        text-decoration: none;
+    }
+    .module caption a:hover {
+        color: #92a5beff; /* gray-600 */
+        text-decoration: none;
+    }
+
+    /* Estilos de la tabla */
+    .table-index {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #ffffff; /* white */
+    }
+    
+    .table-index th,
+    .table-index td {
+        padding: 15px 20px;
+        text-align: left;
+        /*border-bottom: 1px solid #e5e7eb; gray-200 */
+    }
+
+    .table-index th {
+        font-weight: 500;
+        color: #4b5563; /* gray-600 */
+    }
+    
+    /* Estilos para las filas de la tabla */
+    .table-index tbody tr:last-child td {
+        border-bottom: none;
+    }
+    .table-index tbody tr:nth-child(even) {
+        /*background-color: #f9fafb;  gray-50 */
+    }
+
+    /* Estilos para los enlaces */
+    .table-index a {
+        text-decoration: none;
+        font-size: 1rem;
+        color: #3b82f6; /* blue-500 */
+        transition: color 0.2s ease;
+    }
+    .table-index a:hover {
+        color: #2563eb; /* blue-600 */
+    }
+    
+    /* Estilos para los enlaces de acción (Add, Change, View) */
+    .addlink, .changelink, .viewlink {
+        display: flex;
+        padding: 5px 12px;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-align: center;
+        text-decoration: none;
+        transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+    
+    .changelink  {
+        color: #000000ff; /* gray-600 */
+        background-color: transparent;
+        border: 1px solid #9ca3af; /* gray-400 */
+    }
+
+    .addlink {
+        color: #ffffff !important; /* white */
+        background-color: #2563eb; /* blue-600 */
+        border: 1px solid #2563eb;
+    }
+    .addlink:hover {
+        background-color: #1d4ed8; /* blue-700 (color similar para el hover) */
+        border-color: #1d4ed8;
+    }
+    .addlinktd{
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    {% comment %} .addlink i, .changelink i, .viewlink i {
+      margin-right: 2px;
+    } {% endcomment %}
+
+    .changelink, .viewlink {
+        color: #4b5563; /* gray-600 */
+        background-color: transparent;
+        border: 1px solid #9ca3af; /* gray-400 */
+    }
+    .changelink:hover, .viewlink:hover {
+        color: #ffffff;
+        background-color: #4b5563; /* gray-600 */
+        border-color: #4b5563;
+    }
+</style>
+{% endblock %}
+
+{% if app_list %}
+  {% for app in app_list %}
+    <div class="app-{{ app.app_label }} module{% if app.app_url in request.path|urlencode %} current-app{% endif %}">
+      <table class="table-index">
+        <caption>
+          <a href="{{ app.app_url }}" class="section" title="{% blocktranslate with name=app.name %}Models in the {{ name }} application{% endblocktranslate %}">{{ app.name }}</a>
+        </caption>
+        <thead class="visually-hidden">
+          <tr>
+            <th scope="col">{% translate 'Model name' %}</th>
+            <th scope="col">{% translate 'Add link' %}</th>
+            <th scope="col">{% translate 'Change or view list link' %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for model in app.models %}
+            {% with model_name=model.object_name|lower %}
+<tr class="model-{{ model_name }}{% if model.admin_url in request.path|urlencode %} current-model{% endif %}">
+                <th scope="row" id="{{ app.app_label }}-{{ model_name }}">
+                  {% if model.admin_url %}
+                    <a href="{{ model.admin_url }}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>{{ model.name }}</a>
+                  {% else %}
+                    {{ model.name }}
+                  {% endif %}
+                </th>
+
+                {% if model.add_url %}
+                  <td class="addlinktd">
+                    <a href="{{ model.add_url }}" class="addlink" aria-describedby="{{ app.app_label }}-{{ model_name }}">
+                      <i class="bi bi-plus-circle-fill"></i>
+                      {% translate 'Add' %}
+                    </a>
+                  </td>
+                {% else %}
+                  <td></td>
+                {% endif %}
+
+                {% if model.admin_url and show_changelinks %}
+                  {% if model.view_only %}
+                    <td>
+                      <a href="{{ model.admin_url }}" class="viewlink" aria-describedby="{{ app.app_label }}-{{ model_name }}">
+                        <i class="bi bi-eye-fill"></i>
+                        {% translate 'View' %}
+                      </a>
+                    </td>
+                  {% else %}
+                    <td>
+                      <a href="{{ model.admin_url }}" class="changelink" aria-describedby="{{ app.app_label }}-{{ model_name }}">
+                        <i class="bi bi-pencil-square"></i>
+                        {% translate 'Change' %}
+                      </a>
+                    </td>
+                  {% endif %}
+                {% elif show_changelinks %}
+                  <td></td>
+                {% endif %}
+              </tr>
+            {% endwith %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endfor %}
+{% else %}
+  <p>{% translate 'You don’t have permission to view or edit anything.' %}</p>
+{% endif %}

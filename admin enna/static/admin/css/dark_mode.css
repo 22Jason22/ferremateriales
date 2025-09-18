@@ -1,0 +1,129 @@
+@media (prefers-color-scheme: dark) {
+    :root {
+      --primary: #3b82f6; /* blue-500 */
+      --primary-fg: #f9fafb; /* gray-50 */
+  
+      --body-fg: #d1d5db; /* gray-300 */
+      --body-bg: #111827; /* gray-900 */
+      --body-quiet-color: #4b5563; /* gray-600 */
+      --body-medium-color: #d1d5db; /* gray-300 */
+      --body-loud-color: #ffffff; /* white */
+  
+      --breadcrumbs-link-fg: #d1d5db; /* gray-300 */
+      --breadcrumbs-bg: var(--primary);
+  
+      --link-fg: #3b82f6; /* indigo-600 */
+      --link-hover-color: #4f46e5; /* indigo-700 */
+      --link-selected-fg: #3b82f6; /* blue-500 */
+  
+      --hairline-color: #374151; /* gray-700 */
+      --border-color: #4b5563; /* gray-600 */
+  
+      --error-fg: #e35f5f;
+      --message-success-bg: #dcfce7; /* green-100 */
+      --message-warning-bg: #fee2e2; /* red-100 */
+      --message-error-bg: #fee2e2; /* red-100 */
+  
+      --darkened-bg: #1f2937; /* gray-800 */
+      --selected-bg: #374151; /* gray-700 */
+      --selected-row: #374151; /* gray-700 */
+  
+      --close-button-bg: #4b5563; /* gray-600 */
+      --close-button-hover-bg: #6b7280; /* gray-500 */
+      
+      color-scheme: dark;
+    }
+}
+  
+html[data-theme="dark"] {
+    --primary: #3b82f6; /* blue-500 */
+    --primary-fg: #f9fafb; /* gray-50 */
+
+    --body-fg: #d1d5db; /* gray-300 */
+    --body-bg: #111827; /* gray-900 */
+    --body-quiet-color: #4b5563; /* gray-600 */
+    --body-medium-color: #d1d5db; /* gray-300 */
+    --body-loud-color: #ffffff; /* white */
+
+    --breadcrumbs-link-fg: #d1d5db; /* gray-300 */
+    --breadcrumbs-bg: var(--primary);
+
+    --link-fg: #3b82f6; /* indigo-600 */
+    --link-hover-color: #4f46e5; /* indigo-700 */
+    --link-selected-fg: #3b82f6; /* blue-500 */
+
+    --hairline-color: #374151; /* gray-700 */
+    --border-color: #4b5563; /* gray-600 */
+
+    --error-fg: #e35f5f;
+    --message-success-bg: #dcfce7; /* green-100 */
+    --message-warning-bg: #fee2e2; /* red-100 */
+    --message-error-bg: #fee2e2; /* red-100 */
+
+    --darkened-bg: #1f2937; /* gray-800 */
+    --selected-bg: #374151; /* gray-700 */
+    --selected-row: #374151; /* gray-700 */
+
+    --close-button-bg: #4b5563; /* gray-600 */
+    --close-button-hover-bg: #6b7280; /* gray-500 */
+
+    color-scheme: dark;
+}
+
+/* THEME SWITCH */
+.theme-toggle {
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    background: transparent !important;
+    vertical-align: middle;
+    margin-inline-start: 5px;
+    margin-top: -1px;
+}
+
+.theme-toggle svg {
+    vertical-align: middle;
+    height: 1.5rem;
+    width: 1.5rem;
+    display: none;
+}
+
+/*
+Fully hide screen reader text so we only show the one matching the current
+theme.
+*/
+.theme-toggle .visually-hidden {
+    display: none;
+}
+
+html[data-theme="auto"] .theme-toggle .theme-label-when-auto {
+    display: block;
+}
+
+html[data-theme="dark"] .theme-toggle .theme-label-when-dark {
+    display: block;
+}
+
+html[data-theme="light"] .theme-toggle .theme-label-when-light {
+    display: block;
+}
+
+/* ICONS */
+.theme-toggle svg.theme-icon-when-auto,
+.theme-toggle svg.theme-icon-when-dark,
+.theme-toggle svg.theme-icon-when-light {
+    fill: var(--header-link-color);
+    color: var(--header-bg);
+}
+
+html[data-theme="auto"] .theme-toggle svg.theme-icon-when-auto {
+    display: block;
+}
+
+html[data-theme="dark"] .theme-toggle svg.theme-icon-when-dark {
+    display: block;
+}
+
+html[data-theme="light"] .theme-toggle svg.theme-icon-when-light {
+    display: block;
+}

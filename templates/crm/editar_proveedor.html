@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Editar Proveedor - {{ supplier.razon_social|default:"Sin nombre" }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Editar Información del Proveedor</h5>
+                </div>
+                <div class="card-body">
+                    {% include "crm/_editar_proveedor_form.html" %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

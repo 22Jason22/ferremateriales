@@ -1,3 +1,4 @@
+"""zzz"""
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
@@ -104,33 +105,86 @@ class Supplier(models.Model):
     """
     Model that represents a supplier.
     """
-    name = models.CharField(
-        _("Name"),
+    class Rubro(models.TextChoices):
+        CONSTRUCCION = 'construccion', _('Construcción')
+        FERRETERIA = 'ferreteria', _('Ferretería')
+        MATERIALES = 'materiales', _('Materiales')
+        OTROS = 'otros', _('Otros')
+
+    class PlazoPago(models.TextChoices):
+        CONTADO = 'contado', _('Contado')
+        DIAS_15 = '15_dias', _('15 días')
+        DIAS_30 = '30_dias', _('30 días')
+        DIAS_60 = '60_dias', _('60 días')
+        DIAS_90 = '90_dias', _('90 días')
+
+    class Estado(models.TextChoices):
+        ACTIVO = 'activo', _('Activo')
+        SUSPENDIDO = 'suspendido', _('Suspendido')
+        INACTIVO = 'inactivo', _('Inactivo')
+
+    razon_social = models.CharField(
+        _("Razón Social"),
         max_length=255,
+        default='',
     )
-    email = models.EmailField(
-        _("Email"),
-        unique=True,
-        blank=True,
-        null=True,
-    )
-    phone = models.CharField(
-        _("Phone"),
-        max_length=20,
-        blank=True,
-        null=True,
-    )
-    address = models.TextField(
-        _("Address"),
-        blank=True,
-        null=True,
-    )
-    tax_id = models.CharField(
-        _("Tax ID"),
+    ruc = models.CharField(
+        _("RUC"),
         max_length=50,
         unique=True,
         blank=True,
         null=True,
+    )
+    rubro = models.CharField(
+        _("Rubro"),
+        max_length=50,
+        choices=Rubro.choices,
+        default=Rubro.CONSTRUCCION,
+    )
+    telefono = models.CharField(
+        _("Teléfono"),
+        max_length=20,
+        blank=True,
+        null=True,
+    )
+    contacto_nombre = models.CharField(
+        _("Nombre de Contacto"),
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    contacto_email = models.EmailField(
+        _("Email de Contacto"),
+        blank=True,
+        null=True,
+    )
+    contacto_telefono = models.CharField(
+        _("Teléfono de Contacto"),
+        max_length=20,
+        blank=True,
+        null=True,
+    )
+    direccion = models.TextField(
+        _("Dirección"),
+        blank=True,
+        null=True,
+    )
+    plazo_pago = models.CharField(
+        _("Plazo de Pago"),
+        max_length=50,
+        choices=PlazoPago.choices,
+        default=PlazoPago.DIAS_30,
+    )
+    estado = models.CharField(
+        _("Estado"),
+        max_length=50,
+        choices=Estado.choices,
+        default=Estado.ACTIVO,
+    )
+    certificado = models.BooleanField(
+        _("Certificado"),
+        default=False,
+        help_text=_("Proveedor certificado"),
     )
     created_at = models.DateTimeField(
         _("Created At"),
@@ -150,7 +204,7 @@ class Supplier(models.Model):
         verbose_name_plural = _("Suppliers")
 
     def __str__(self):
-        return str(self.name)
+        return self.razon_social or "Sin nombre"
 
 
 class Lead(models.Model):
@@ -165,6 +219,12 @@ class Lead(models.Model):
     source = models.CharField(
         _("Source"),
         max_length=255,
+        blank=True,
+        null=True,
+    )
+    status = models.CharField(
+        _("Status"),
+        max_length=100,
         blank=True,
         null=True,
     )

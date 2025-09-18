@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Crear Recepción de Mercancía - {{ purchase.order_number }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-truck me-2"></i> Crear Recepción de Mercancía</h2>
+        <a href="{% url 'purchases:purchase_detail' purchase.pk %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Volver
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Orden de Compra: {{ purchase.order_number }}</h5>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Número de Recepción</label>
+                        <input type="text" name="receipt_number" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Fecha</label>
+                        <input type="date" name="date" class="form-control" value="{{ purchase.date|date:'Y-m-d' }}" required>
+                    </div>
+                </div>
+
+                <h5 class="mt-4 mb-3">Items Recibidos</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad Ordenada</th>
+                                <th>Cantidad Recibida</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in purchase.items.all %}
+                            <tr>
+                                <td>{{ item.product.name }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>
+                                    <input type="number" name="quantity_received_{{ item.id }}" class="form-control" min="0" max="{{ item.quantity }}" step="0.01" required>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i> Guardar Recepción
+                    </button>
+                    <a href="{% url 'purchases:purchase_detail' purchase.pk %}" class="btn btn-outline-secondary">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

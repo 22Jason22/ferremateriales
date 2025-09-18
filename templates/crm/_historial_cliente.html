@@ -1,0 +1,179 @@
+
+<!-- Historial de Ventas -->
+<div class="card mb-3">
+    <div class="card-header">
+        <h6 class="mb-0"><i class="fas fa-shopping-cart me-2"></i> Órdenes de Venta</h6>
+    </div>
+    <div class="card-body">
+        {% if orders %}
+            <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr>
+                            <th>N° Orden</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>{{ order.order_number }}</td>
+                            <td>{{ order.date|date:"d/m/Y" }}</td>
+                            <td>
+                                {% if order.status == 'pending' %}
+                                    <span class="badge bg-warning">Pendiente</span>
+                                {% elif order.status == 'confirmed' %}
+                                    <span class="badge bg-info">Confirmada</span>
+                                {% elif order.status == 'shipped' %}
+                                    <span class="badge bg-primary">Enviada</span>
+                                {% elif order.status == 'delivered' %}
+                                    <span class="badge bg-success">Entregada</span>
+                                {% elif order.status == 'cancelled' %}
+                                    <span class="badge bg-danger">Cancelada</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ order.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>${{ order.total_amount|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">No hay órdenes de venta registradas para este cliente.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Historial de Cotizaciones -->
+<div class="card mb-3">
+    <div class="card-header">
+        <h6 class="mb-0"><i class="fas fa-file-invoice me-2"></i> Cotizaciones</h6>
+    </div>
+    <div class="card-body">
+        {% if quotes %}
+            <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr>
+                            <th>N° Cotización</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for quote in quotes %}
+                        <tr>
+                            <td>{{ quote.quote_number }}</td>
+                            <td>{{ quote.date|date:"d/m/Y" }}</td>
+                            <td>
+                                {% if quote.status == 'draft' %}
+                                    <span class="badge bg-secondary">Borrador</span>
+                                {% elif quote.status == 'sent' %}
+                                    <span class="badge bg-info">Enviada</span>
+                                {% elif quote.status == 'approved' %}
+                                    <span class="badge bg-success">Aprobada</span>
+                                {% elif quote.status == 'rejected' %}
+                                    <span class="badge bg-danger">Rechazada</span>
+                                {% else %}
+                                    <span class="badge bg-light text-dark">{{ quote.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>${{ quote.total_amount|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">No hay cotizaciones registradas para este cliente.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Historial de Facturas -->
+<div class="card mb-3">
+    <div class="card-header">
+        <h6 class="mb-0"><i class="fas fa-receipt me-2"></i> Facturas</h6>
+    </div>
+    <div class="card-body">
+        {% if invoices %}
+            <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr>
+                            <th>N° Factura</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invoice in invoices %}
+                        <tr>
+                            <td>{{ invoice.invoice_number }}</td>
+                            <td>{{ invoice.date_issued|date:"d/m/Y" }}</td>
+                            <td>
+                                {% if invoice.status == 0 %}
+                                    <span class="badge bg-secondary">Borrador</span>
+                                {% elif invoice.status == 1 %}
+                                    <span class="badge bg-info">Enviada</span>
+                                {% elif invoice.status == 2 %}
+                                    <span class="badge bg-success">Pagada</span>
+                                {% elif invoice.status == 3 %}
+                                    <span class="badge bg-danger">Vencida</span>
+                                {% else %}
+                                    <span class="badge bg-light text-dark">{{ invoice.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>${{ invoice.total_amount|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">No hay facturas registradas para este cliente.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Estadísticas rápidas -->
+<div class="row">
+    <div class="col-6 col-md-3 mb-2">
+        <div class="card text-white bg-primary h-100">
+            <div class="card-body text-center p-2">
+                <h6>{{ orders|length }}</h6>
+                <small>Órdenes</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 mb-2">
+        <div class="card text-white bg-success h-100">
+            <div class="card-body text-center p-2">
+                <h6>{{ quotes|length }}</h6>
+                <small>Cotizaciones</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 mb-2">
+        <div class="card text-white bg-warning h-100">
+            <div class="card-body text-center p-2">
+                <h6>{{ invoices|length }}</h6>
+                <small>Facturas</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 mb-2">
+        <div class="card text-white bg-info h-100">
+            <div class="card-body text-center p-2">
+                <h6>${{ total_amount|floatformat:2 }}</h6>
+                <small>Total</small>
+            </div>
+        </div>
+    </div>
+</div>

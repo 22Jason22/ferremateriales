@@ -79,16 +79,11 @@ def sales_edit(request, pk):
         form = OrderForm(request.POST, instance=sale)
         if form.is_valid():
             form.save()
+            if request.GET.get('modal') == '1':
+                return redirect('sales:sales_list')
             return redirect('sales:sales_list')
     else:
         form = OrderForm(instance=sale)
-    
-    context = {
-        'form': form, 
-        'sale': sale
-    }
-
     if request.GET.get('modal') == '1':
-        return render(request, 'sales/_sales_form.html', context)
-    
-    return render(request, 'sales/sales_form.html', context)
+        return render(request, 'sales/_sales_form.html', {'form': form, 'sale': sale})
+    return render(request, 'sales/sales_form.html', {'form': form, 'sale': sale})

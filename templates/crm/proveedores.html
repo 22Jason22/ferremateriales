@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+{% block title %}Gestión de Proveedores - Ferromateriales{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-truck me-2"></i> Gestión de Proveedores</h2>
+        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevoProveedorModal">
+            <i class="fas fa-plus me-1"></i> Nuevo Proveedor
+        </a>
+    </div>
+
+    <!-- Filtros avanzados -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0"><i class="fas fa-filter me-2"></i> Filtros de Búsqueda</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" id="filtroProveedores" class="row g-3">
+                <div class="col-md-4">
+                    <label for="filtroRazonSocial" class="form-label">Razón Social</label>
+                    <input type="text" name="razon_social" value="{{ request.GET.razon_social }}" class="form-control" id="filtroRazonSocial" placeholder="Buscar proveedor...">
+                </div>
+                <div class="col-md-3">
+                    <label for="filtroRubro" class="form-label">Rubro</label>
+                    <select name="rubro" class="form-select" id="filtroRubro">
+                        <option value="">Todos los rubros</option>
+                        {% for key, value in rubros.items %}
+                        <option value="{{ key }}" {% if request.GET.rubro == key %}selected{% endif %}>{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="filtroEstado" class="form-label">Estado</label>
+                    <select name="estado" class="form-select" id="filtroEstado">
+                        <option value="">Todos</option>
+                        {% for key, value in estados.items %}
+                        <option value="{{ key }}" {% if request.GET.estado == key %}selected{% endif %}>{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100 me-2">
+                        <i class="fas fa-search me-1"></i> Buscar
+                    </button>
+                    <a href="{% url 'crm:proveedores' %}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-undo me-1"></i> Limpiar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tarjetas resumen -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Proveedores Activos</h6>
+                            <h2 class="mb-0">{{ stats.proveedores_activos }}</h2>
+                        </div>
+                        <i class="fas fa-check-circle fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Órdenes este mes</h6>
+                            <h2 class="mb-0">{{ stats.ordenes_mes }}</h2>
+                        </div>
+                        <i class="fas fa-shopping-cart fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Pendientes de pago</h6>
+                            <h2 class="mb-0">{{ stats.pendientes_pago }}</h2>
+                        </div>
+                        <i class="fas fa-exclamation-triangle fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Con alertas</h6>
+                            <h2 class="mb-0">{{ stats.con_alertas }}</h2>
+                        </div>
+                        <i class="fas fa-bell fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Listado de proveedores -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Registro de Proveedores</h5>
+            <div>
+                <span class="me-3">Total registros: {{ suppliers|length }}</span>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-file-export me-1"></i> Exportar
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-cog me-1"></i> Configurar
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Proveedor</th>
+                            <th>Contacto</th>
+                            <th>Rubro</th>
+                            <th>Última Compra</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for supplier in suppliers %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>
+                                <strong>{{ supplier.razon_social }}</strong><br>
+                                <small class="text-muted">RUC: {{ supplier.ruc }}</small>
+                            </td>
+                            <td>
+                                <div>{{ supplier.contacto_nombre }}</div>
+                                <div class="small text-muted">{{ supplier.contacto_email }}</div>
+                                <div class="small text-muted">{{ supplier.contacto_telefono }}</div>
+                            </td>
+                            <td>{{ supplier.get_rubro_display }}</td>
+                            <td>
+                                {% comment %} TODO: Add last purchase {% endcomment %}
+                                <div class="text-muted">Sin compras</div>
+                            </td>
+                            <td>
+                                {% if supplier.estado == 'activo' %}
+                                <span class="badge bg-success">Activo</span>
+                                {% elif supplier.estado == 'suspendido' %}
+                                <span class="badge bg-warning">Suspendido</span>
+                                {% elif supplier.estado == 'inactivo' %}
+                                <span class="badge bg-secondary">Inactivo</span>
+                                {% else %}
+                                <span class="badge bg-light text-dark">{{ supplier.get_estado_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-outline-primary btn-view-detail" data-bs-toggle="modal" data-bs-target="#proveedorDetailModal" data-url="{% url 'crm:ver_proveedor' supplier.id %}?modal=1" title="Ver detalle">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-edit-supplier" data-bs-toggle="modal" data-bs-target="#editarProveedorModal" data-url="{% url 'crm:editar_proveedor' supplier.id %}?modal=1" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <a href="{% url 'crm:historial_proveedor' supplier.id %}" class="btn btn-outline-info" title="Historial">
+                                        <i class="fas fa-history"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No se encontraron proveedores.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para detalle proveedor -->
+<div class="modal fade" id="proveedorDetailModal" tabindex="-1" aria-labelledby="proveedorDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="proveedorDetailModalLabel">Detalles del Proveedor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Supplier detail content will be loaded here dynamically -->
+                <div id="proveedorDetailContent" class="container-fluid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para nuevo proveedor -->
+<div class="modal fade" id="nuevoProveedorModal" tabindex="-1" aria-labelledby="nuevoProveedorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="nuevoProveedorModalLabel">Nuevo Proveedor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" id="nuevoProveedorForm" novalidate>
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        {% for field in form %}
+                            <div class="col-md-6">
+                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ field.errors|striptags }}
+                                    </div>
+                                {% endif %}
+                                {% if field.help_text %}
+                                    <div class="form-text">{{ field.help_text }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-4 d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Crear Proveedor</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para editar proveedor -->
+<div class="modal fade" id="editarProveedorModal" tabindex="-1" aria-labelledby="editarProveedorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editarProveedorModalLabel">Editar Proveedor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Supplier edit form will be loaded here dynamically -->
+                <div id="editarProveedorContent"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var proveedorDetailModal = document.getElementById('proveedorDetailModal');
+    var proveedorDetailContent = document.getElementById('proveedorDetailContent');
+
+    proveedorDetailModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var url = button.getAttribute('data-url');
+
+        // Clear previous content
+        proveedorDetailContent.innerHTML = '<p>Cargando detalles...</p>';
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(html => {
+                // Extract the detail content from the response
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(html, 'text/html');
+                var detailContent = doc.querySelector('.row');
+                if (detailContent) {
+                    proveedorDetailContent.innerHTML = detailContent.outerHTML;
+                } else {
+                    proveedorDetailContent.innerHTML = '<p>No se pudo cargar el detalle del proveedor.</p>';
+                }
+            })
+            .catch(error => {
+                proveedorDetailContent.innerHTML = '<p>Error al cargar el detalle del proveedor.</p>';
+                console.error('Fetch error:', error);
+            });
+    });
+
+    // Modal para editar proveedor
+    var editarProveedorModal = document.getElementById('editarProveedorModal');
+    var editarProveedorContent = document.getElementById('editarProveedorContent');
+
+    editarProveedorModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var url = button.getAttribute('data-url');
+
+        // Clear previous content
+        editarProveedorContent.innerHTML = '<p>Cargando formulario...</p>';
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(html => {
+                editarProveedorContent.innerHTML = html;
+                // After loading the form, attach submit handler
+                var form = editarProveedorContent.querySelector('#editarProveedorForm');
+                if (form) {
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        var formData = new FormData(form);
+                        fetch(url, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                            }
+                        })
+                        .then(response => {
+                            if (response.redirected) {
+                                // Success, reload the page to show updated data
+                                window.location.reload();
+                            } else {
+                                return response.text();
+                            }
+                        })
+                        .then(html => {
+                            if (html) {
+                                // If there are errors, reload the form
+                                editarProveedorContent.innerHTML = html;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Submit error:', error);
+                            editarProveedorContent.innerHTML = '<p>Error al guardar los cambios.</p>';
+                        });
+                    });
+                }
+            })
+            .catch(error => {
+                editarProveedorContent.innerHTML = '<p>Error al cargar el formulario.</p>';
+                console.error('Fetch error:', error);
+            });
+    });
+
+    // Clear content when modal is hidden
+    editarProveedorModal.addEventListener('hidden.bs.modal', function () {
+        editarProveedorContent.innerHTML = '';
+    });
+
+    // Reset new supplier form when modal opens
+    var nuevoProveedorModal = document.getElementById('nuevoProveedorModal');
+    nuevoProveedorModal.addEventListener('show.bs.modal', function () {
+        var form = document.getElementById('nuevoProveedorForm');
+        if (form) {
+            form.reset();
+        }
+    });
+
+    // Handle new supplier form submit
+    var nuevoProveedorForm = document.getElementById('nuevoProveedorForm');
+    if (nuevoProveedorForm) {
+        nuevoProveedorForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            fetch(window.location.href, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.reload();
+                } else {
+                    return response.text();
+                }
+            })
+            .then(html => {
+                if (html) {
+                    // Reload the form with errors
+                    var parser = new DOMParser();
+                    var doc = parser.parseFromString(html, 'text/html');
+                    var newForm = doc.querySelector('#nuevoProveedorForm');
+                    if (newForm) {
+                        document.getElementById('nuevoProveedorForm').innerHTML = newForm.innerHTML;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Submit error:', error);
+            });
+        });
+    }
+});
+</script>
+{% endblock %}
